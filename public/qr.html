@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR 코드 생성</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script> 
+    </head>
+<body>
+    <header class="main-header" style="justify-content: center;">
+        <img src="assets/yeonsung_logo.png" alt="연성대 로고" class="logo">
+        <div class="header-info">
+            <h1>QR 코드 생성기</h1>
+        </div>
+    </header>
+
+    <div class="qr-container">
+        <h2>테이블/부스 QR 생성</h2>
+        <input type="number" id="booth-input" placeholder="부스/테이블 번호 입력 (예: 9)" style="padding: 10px; font-size: 1.2em; width: 250px;">
+        <button id="generate-qr-btn" style="padding: 10px 20px; font-size: 1.2em; background-color: var(--color-secondary); color: var(--color-text); border: none; border-radius: 5px; cursor: pointer;">QR 생성</button>
+        
+        <p id="qr-url-display" style="color: var(--color-light-gray);"></p>
+        <div id="qrcode"></div>
+    </div>
+
+    <script src="js/qr.js"></script>
+</body>
+</html>

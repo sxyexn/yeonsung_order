@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무한 미식 | 연성대 주점</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="main-header">
+        <img src="assets/yeonsung_logo.png" alt="연성대 로고" class="logo">
+        <div class="header-info">
+            <h1>무한 미식</h1>
+            <p id="booth-number">테이블: N/A</p> 
+        </div>
+    </header>
+
+    <main class="menu-container" id="menu-list">
+        <p style="text-align: center; color: var(--color-light-gray);">메뉴를 불러오는 중...</p>
+    </main>
+
+    <footer class="cart-footer">
+        <div class="cart-summary">
+            총 <span id="total-quantity">0</span>개 / <span id="total-price">0원</span>
+        </div>
+        <button id="order-submit-btn" disabled>주문하기</button>
+    </footer>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/client.js"></script>
+</body>
+</html>

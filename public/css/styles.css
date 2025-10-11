@@ -1,0 +1,350 @@
+/* public/css/styles.css (라이트 모드 최종 통합 버전) */
+:root {
+    --color-primary: #ffffff; /* 메인 배경 (밝은 흰색) */
+    --color-secondary: #ff5757; /* 붉은색 (강조색, 렌고쿠) */
+    --color-accent: #34d169; /* 녹색 (버튼/포인트색, 탄지로) */
+    --color-text: #333333; /* 어두운 텍스트 */
+    --color-light-gray: #777777; 
+    --color-card-bg: #f5f5f5; /* 메뉴 카드 배경 */
+    
+    /* 주방 상태별 색상 (라이트 모드) */
+    --color-pending: #ffeaea; /* 대기 (밝은 빨강 배경) */
+    --color-processing: #fff8e1; /* 조리 중 (밝은 노랑 배경) */
+    --color-completed: #e8f5e9; /* 완료 (밝은 녹색 배경) */
+    --color-status-text: #333333; /* 상태 카드 내부 텍스트 */
+    --font-family: 'Malgun Gothic', 'Arial', sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-primary);
+    color: var(--color-text);
+    margin: 0;
+    padding-bottom: 90px; /* 푸터 공간 확보 */
+}
+
+/* ======================================= */
+/* 공통 헤더 스타일 */
+/* ======================================= */
+.main-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #ffffff;
+    border-bottom: 4px solid var(--color-secondary);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+}
+
+.logo {
+    height: 35px; 
+    margin-right: 15px;
+}
+
+.header-info h1 {
+    font-size: 1.6em;
+    color: var(--color-secondary);
+    margin: 0;
+}
+
+.header-info p {
+    font-size: 0.9em;
+    color: var(--color-light-gray);
+    margin: 4px 0 0 0;
+}
+
+
+/* ======================================= */
+/* 테이블 번호 입력 화면 (start.html) */
+/* ======================================= */
+.start-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px); 
+    padding: 20px;
+    text-align: center;
+}
+
+.start-container h2 {
+    color: var(--color-text);
+    margin-bottom: 30px;
+    font-size: 1.8em;
+}
+
+#booth-input {
+    padding: 15px;
+    font-size: 1.5em;
+    width: 200px;
+    text-align: center;
+    border: 3px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+#booth-input:focus {
+    border-color: var(--color-accent);
+}
+
+#start-btn {
+    background-color: var(--color-accent);
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+#start-btn:hover {
+    background-color: #27ae60;
+}
+
+
+/* ======================================= */
+/* 고객 주문 페이지 (menu.html) */
+/* ======================================= */
+.menu-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.menu-card {
+    background-color: var(--color-card-bg);
+    border-radius: 12px;
+    padding: 18px;
+    border: 1px solid #ddd;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); 
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.menu-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.menu-image {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 18px;
+    border: 2px solid var(--color-accent);
+}
+
+.menu-details {
+    flex-grow: 1;
+}
+
+.menu-details h3 {
+    margin: 0 0 4px 0;
+    font-size: 1.3em;
+    color: var(--color-text);
+}
+
+.description {
+    font-size: 0.9em;
+    color: var(--color-light-gray);
+    margin: 0 0 8px 0;
+}
+
+.price {
+    color: var(--color-secondary); 
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.quantity-control button {
+    background-color: var(--color-accent);
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    font-size: 1.4em;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.quantity-control button:hover {
+    background-color: #27ae60;
+}
+.quantity-control button:active {
+    transform: scale(0.95);
+}
+
+.quantity {
+    font-size: 1.3em;
+    min-width: 25px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* 푸터 및 장바구니 */
+.cart-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #ffffff;
+    padding: 15px 20px;
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+}
+
+.cart-summary {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--color-text);
+}
+
+#order-submit-btn {
+    background-color: var(--color-secondary);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+#order-submit-btn:hover:not(:disabled) {
+    background-color: #c0392b;
+}
+#order-submit-btn:disabled {
+    background-color: #aaaaaa;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+
+/* ======================================= */
+/* 조리 현황판 (kitchen.html) */
+/* ======================================= */
+.order-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.kitchen-header {
+    background-color: #ffffff;
+    padding: 15px 20px;
+    border-bottom: 4px solid var(--color-accent);
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.kitchen-header h1 {
+    color: var(--color-accent);
+    margin: 0;
+    font-size: 1.8em;
+}
+
+.order-card {
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    color: var(--color-status-text);
+}
+
+/* 상태별 색상 (밝은 배경) */
+.status-pending {
+    background-color: var(--color-pending); 
+    border-left: 6px solid var(--color-secondary);
+    color: var(--color-text);
+}
+.status-processing {
+    background-color: var(--color-processing); 
+    border-left: 6px solid #f1c40f; 
+    color: var(--color-text);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
+    padding-bottom: 8px;
+}
+
+.booth-id {
+    font-size: 2em;
+    font-weight: 800;
+    color: var(--color-secondary);
+}
+
+.order-time {
+    font-size: 0.9em;
+    color: var(--color-light-gray);
+}
+
+.order-items {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.order-items li {
+    font-size: 1.1em;
+    line-height: 1.8;
+    font-weight: 500;
+    border-bottom: 1px dotted rgba(0, 0, 0, 0.1);
+    color: var(--color-text); 
+}
+
+.order-actions {
+    margin-top: 18px;
+    text-align: center;
+}
+
+.btn-status {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1.1em;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.btn-status.processing {
+    background-color: #f1c40f;
+    color: #333;
+}
+.btn-status.processing:hover {
+    background-color: #e6b800;
+}
+
+.btn-status.completed {
+    background-color: var(--color-accent);
+    color: white;
+}
+.btn-status.completed:hover {
+    background-color: #27ae60;
+}

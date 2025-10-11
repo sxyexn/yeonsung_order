@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테이블 번호 입력</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="main-header">
+        <img src="assets/yeonsung_logo.png" alt="연성대 로고" class="logo"> 
+        <div class="header-info">
+            <h1>무한 미식</h1>
+            <p>테이블 번호를 입력해 주세요</p>
+        </div>
+    </header>
+
+    <main class="start-container">
+        <h2>주문할 테이블 번호를 입력하세요</h2>
+        <input type="number" id="booth-input" placeholder="예: 9" required min="1">
+        <button id="start-btn">주문 시작하기</button>
+    </main>
+
+    <script>
+        document.getElementById('start-btn').addEventListener('click', () => {
+            const boothId = document.getElementById('booth-input').value;
+            if (boothId && parseInt(boothId) > 0) {
+                // index.html 이름을 menu.html로 변경했다고 가정하고 이동
+                window.location.href = `/menu.html?booth=${boothId}`;
+            } else {
+                alert('유효한 테이블 번호를 입력해 주세요.');
+            }
+        });
+        
+        // 엔터 키로도 주문 시작 가능하도록 설정
+        document.getElementById('booth-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('start-btn').click();
+            }
+        });
+    </script>
+</body>
+</html>

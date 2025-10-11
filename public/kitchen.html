@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문 관리 대시보드 | 무한 미식</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="kitchen-header">
+        <h1>무한 미식 - 조리 현황판</h1>
+        <p id="status-summary">실시간 주문 현황</p>
+    </header>
+
+    <main class="order-dashboard" id="order-dashboard">
+        <p style="color: var(--color-light-gray); text-align: center;">대기 중인 주문이 없습니다.</p>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/kitchen.js"></script>
+</body>
+</html>
