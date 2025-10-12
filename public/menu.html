@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>무한 미식 | 연성대 주점</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -40,7 +40,7 @@
                 <p class="menu-tag" id="modal-menu-category"></p>
                 <h2 id="modal-menu-name">메뉴 이름</h2>
                 <p class="modal-menu-description" id="modal-menu-description"></p>
-                <p class="modal-menu-price" id="modal-menu-price">0원</p>
+                <p class="modal-menu-unit-price" id="modal-menu-unit-price">0원</p>
             </div>
 
             <div class="modal-quantity-control">
@@ -82,6 +82,8 @@
             <button id="cart-submit-btn">주문하기</button>
         </footer>
     </div>
+
+    <div id="toast-message" class="toast-message"></div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/client.js"></script>

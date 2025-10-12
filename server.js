@@ -1,6 +1,5 @@
 // server.js (routes/admin.js 분리 버전)
 
-// 모듈 가져오기
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -21,13 +20,14 @@ const io = socketIo(server);
 app.use(express.json());
 
 // ===========================================
-// 1. MySQL DB 연결 설정
+// 1. MySQL DB 연결 설정 및 초기화 로직
 // ===========================================
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    multipleStatements: true, // 💡 중요: 다중 쿼리 실행 허용
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -69,7 +69,6 @@ app.get('/api/menus', async (req, res) => {
 // 테이블별 주문 내역을 가져오는 API 엔드포인트 (기존 유지)
 app.get('/api/orders/:boothId', async (req, res) => {
     const boothId = req.params.boothId;
-
     try {
         const [orders] = await pool.query(
             'SELECT order_id, total_price, status, payment_status, order_time FROM orders WHERE booth_id = ? ORDER BY order_time DESC',
@@ -79,6 +78,7 @@ app.get('/api/orders/:boothId', async (req, res) => {
         if (orders.length === 0) return res.json([]);
         
         const ordersWithItems = await Promise.all(orders.map(async (order) => {
+            // order_items에서 단가(unit_price)를 포함하여 조회
             const [items] = await pool.query(
                 `SELECT oi.quantity, oi.unit_price, m.name 
                  FROM order_items oi
