@@ -69,6 +69,54 @@ app.get('/api/menus', async (req, res) => {
     }
 });
 
+// 테이블별 주문 내역을 가져오는 API 엔드포인트
+app.get('/api/orders/:boothId', async (req, res) => {
+    const boothId = req.params.boothId;
+
+    try {
+        // 1. 해당 부스의 주문 목록을 가져옵니다. (최신순 정렬)
+        const [orders] = await pool.query(
+            'SELECT order_id, total_price, status, order_time FROM orders WHERE booth_id = ? ORDER BY order_time DESC',
+            [boothId]
+        );
+
+        if (orders.length === 0) {
+            return res.json([]);
+        }
+        
+        // 2. 각 주문의 상세 항목 (items) 정보를 메뉴 이름과 함께 병합합니다.
+        const ordersWithItems = await Promise.all(orders.map(async (order) => {
+            const [items] = await pool.query(
+                `SELECT oi.quantity, oi.unit_price, m.name 
+                 FROM order_items oi
+                 JOIN menus m ON oi.menu_id = m.menu_id
+                 WHERE oi.order_id = ?`,
+                [order.order_id]
+            );
+            
+            // 시간 포맷 변경
+            const orderTime = new Date(order.order_time).toLocaleTimeString('ko-KR', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false // 24시간 형식으로 가정
+            });
+
+            return {
+                order_id: order.order_id,
+                total_price: order.total_price,
+                status: order.status,
+                order_time: orderTime,
+                items: items
+            };
+        }));
+
+        res.json(ordersWithItems);
+
+    } catch (error) {
+        console.error('주문 내역 로드 중 DB 오류:', error);
+        res.status(500).json({ message: '주문 내역을 불러오는 데 실패했습니다.' });
+    }
+});
 
 // ===========================================
 // 3. Socket.IO 실시간 통신

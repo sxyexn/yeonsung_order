@@ -195,6 +195,23 @@ body {
     font-weight: bold;
 }
 
+/* 주문 내역 버튼 (보조 버튼) */
+.secondary-btn {
+    background-color: var(--color-light-gray);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.secondary-btn:hover {
+    background-color: #666666;
+}
+
 /* 푸터 및 장바구니 */
 .cart-footer {
     position: fixed;
@@ -202,22 +219,35 @@ body {
     left: 0;
     width: 100%;
     background-color: #ffffff;
+    /* 기존 flex 대신 grid 사용으로 모바일 버튼/요약 레이아웃 변경 */
+    display: grid; 
+    grid-template-columns: 1fr 1fr; /* 버튼 2개 */
+    grid-template-rows: auto auto; /* 요약, 버튼 행 */
+    gap: 10px;
     padding: 15px 20px;
+    align-items: center;
     border-top: 1px solid #ddd;
     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     z-index: 1000;
 }
 
 .cart-summary {
+    grid-column: 1 / 3; /* 요약은 두 버튼 위 전체 폭 차지 */
+    text-align: center;
+    order: 1; 
     font-size: 1.2em;
     font-weight: bold;
     color: var(--color-text);
 }
 
+#view-orders-btn {
+    grid-column: 1 / 2;
+    order: 2;
+}
+
 #order-submit-btn {
+    grid-column: 2/3;
+    order: 3;
     background-color: var(--color-secondary);
     color: white;
     border: none;
@@ -347,4 +377,93 @@ body {
 }
 .btn-status.completed:hover {
     background-color: #27ae60;
+}
+
+/* 모달 기본 스타일 */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 2000; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.7); 
+}
+
+.modal-content {
+    background-color: var(--color-primary);
+    margin: 10% auto; 
+    padding: 25px;
+    border: 1px solid #888;
+    width: 90%; 
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-content h2 {
+    color: var(--color-secondary);
+    margin-top: 0;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 주문 내역 목록 스타일 */
+#order-history-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 5px 0;
+}
+
+.history-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.history-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* 상태별 스타일 재사용 */
+.history-card .status-pending { background-color: var(--color-pending); color: var(--color-secondary); }
+.history-card .status-processing { background-color: var(--color-processing); color: #f1c40f; }
+.history-card .status-completed { background-color: var(--color-completed); color: var(--color-accent); }
+
+.history-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.95em;
+}
+
+.history-card ul li {
+    line-height: 1.5;
 }

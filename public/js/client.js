@@ -6,6 +6,11 @@ const boothNumberEl = document.getElementById('booth-number');
 const totalQuantityEl = document.getElementById('total-quantity');
 const totalPriceEl = document.getElementById('total-price');
 const orderSubmitBtn = document.getElementById('order-submit-btn');
+const viewOrdersBtn = document.getElementById('view-orders-btn');
+const orderHistoryModal = document.getElementById('order-history-modal');
+const modalCloseBtn = orderHistoryModal.querySelector('.close-btn');
+const modalBoothIdEl = document.getElementById('modal-booth-id');
+const orderHistoryListEl = document.getElementById('order-history-list');
 
 let menus = [];
 let cart = {}; // { menu_id: quantity }
@@ -124,6 +129,63 @@ menuListEl.addEventListener('click', (e) => {
     }
 });
 
+// 서버에서 주문 내역을 가져와 모달에 표시
+async function loadOrderHistory() {
+    if (boothId === 'N/A') {
+        orderHistoryListEl.innerHTML = '<p class="error-text">테이블 번호를 확인할 수 없습니다.</p>';
+        return;
+    }
+
+    try {
+        orderHistoryListEl.innerHTML = '<p class="loading-text">주문 내역을 불러오는 중...</p>';
+        
+        // 새 API 엔드포인트 호출: /api/orders/{boothId}
+        const response = await fetch(`/api/orders/${boothId}`);
+        
+        if (!response.ok) throw new Error('주문 내역 로드 실패');
+        
+        const orders = await response.json();
+        
+        renderOrderHistory(orders);
+
+    } catch (error) {
+        console.error("주문 내역 로드 실패:", error);
+        orderHistoryListEl.innerHTML = '<p class="error-text">😭 주문 내역을 불러오는 데 오류가 발생했습니다.</p>';
+    }
+}
+
+// 주문 내역을 HTML로 렌더링
+function renderOrderHistory(orders) {
+    orderHistoryListEl.innerHTML = ''; 
+
+    if (orders.length === 0) {
+        orderHistoryListEl.innerHTML = '<p style="text-align: center; color: var(--color-light-gray);">아직 주문 내역이 없습니다.</p>';
+        return;
+    }
+
+    orders.forEach(order => {
+        const itemsHtml = order.items.map(item => `
+            <li>${item.name} x ${item.quantity} (${item.unit_price.toLocaleString()}원/개)</li>
+        `).join('');
+        
+        const statusText = order.status === 'pending' ? '대기 중' : 
+                           order.status === 'processing' ? '조리 중' : 
+                           '✅ 완료';
+
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        card.innerHTML = `
+            <div class="history-header">
+                <span>주문 시간: ${order.order_time}</span>
+                <span class="history-status status-${order.status}">${statusText}</span>
+            </div>
+            <ul>${itemsHtml}</ul>
+            <p style="font-weight: bold; text-align: right; margin-top: 10px;">총 금액: ${order.total_price.toLocaleString()}원</p>
+        `;
+        orderHistoryListEl.appendChild(card);
+    });
+}
+
 // 주문 전송
 orderSubmitBtn.addEventListener('click', () => {
     if (orderSubmitBtn.disabled) return;
@@ -166,6 +228,25 @@ orderSubmitBtn.addEventListener('click', () => {
         // 주문 완료 후 장바구니 초기화
         cart = {};
         updateCartUI();
+    }
+});
+
+// 주문 내역 버튼 이벤트 리스너 추가
+viewOrdersBtn.addEventListener('click', () => {
+    modalBoothIdEl.textContent = boothId;
+    orderHistoryModal.style.display = 'block';
+    loadOrderHistory(); // 주문 내역 로드 시작
+});
+
+// 모달 닫기 이벤트 (X 버튼)
+modalCloseBtn.addEventListener('click', () => {
+    orderHistoryModal.style.display = 'none';
+});
+
+// 모달 외부 클릭 시 닫기
+window.addEventListener('click', (event) => {
+    if (event.target === orderHistoryModal) {
+        orderHistoryModal.style.display = 'none';
     }
 });
 
