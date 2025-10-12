@@ -13,18 +13,75 @@
             <h1>무한 미식</h1>
             <p id="booth-number">테이블: N/A</p> 
         </div>
+        <div class="cart-icon-container" id="cart-icon">
+            <svg class="cart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7.5 18c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zM19 18c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zM.75 2h3.19l.775 1.667h15.222l2.36 10.439c.099.43.076.883-.069 1.303-.145.42-.416.797-.783 1.077a2.76 2.76 0 01-1.285.513H7.5c-.247 0-.488-.042-.718-.122l-.782-1.688H1.5V14H.75V2zm5.72 10l-1.09-4.833h13.064l-1.637 4.833H6.47z"/>
+            </svg>
+            <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+        </div>
     </header>
 
-    <main class="menu-container" id="menu-list">
-        <p style="text-align: center; color: var(--color-light-gray);">메뉴를 불러오는 중...</p>
+    <nav class="category-tabs" id="category-tabs">
+        </nav>
+
+    <main class="menu-container">
+        <div id="menu-list">
+             <p style="text-align: center; color: var(--color-light-gray); padding: 50px;">메뉴를 불러오는 중...</p>
+        </div>
     </main>
 
-    <footer class="cart-footer">
-        <div class="cart-summary">
-            총 <span id="total-quantity">0</span>개 / <span id="total-price">0원</span>
+    <div id="detail-modal" class="modal">
+        <div class="modal-content detail-modal-content">
+            <div class="close-btn-fixed" id="detail-close-btn">&times;</div>
+            
+            <img src="assets/default.jpg" alt="메뉴 이미지" class="modal-menu-image" id="modal-menu-image">
+            
+            <div class="modal-body-content">
+                <p class="menu-tag" id="modal-menu-category"></p>
+                <h2 id="modal-menu-name">메뉴 이름</h2>
+                <p class="modal-menu-description" id="modal-menu-description"></p>
+                <p class="modal-menu-price" id="modal-menu-price">0원</p>
+            </div>
+
+            <div class="modal-quantity-control">
+                <span>수량</span>
+                <div class="quantity-controls">
+                    <button class="btn-minus" id="modal-btn-minus">-</button>
+                    <span class="quantity" id="modal-quantity">1</span>
+                    <button class="btn-plus" id="modal-btn-plus">+</button>
+                </div>
+            </div>
         </div>
-        <button id="order-submit-btn" disabled>주문하기</button>
-    </footer>
+        
+        <footer class="modal-footer">
+            <button id="add-to-cart-btn">0원 담기</button>
+        </footer>
+    </div>
+    
+    <div id="order-history-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="history-close-btn">&times;</span>
+            <h2>테이블 <span id="modal-booth-id"></span>번 주문 내역</h2>
+            <div id="order-history-list">
+                <p class="loading-text">주문 내역을 불러오는 중...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="cart-view-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="cart-view-close-btn">&times;</span>
+            <h2>장바구니</h2>
+            <div id="cart-items-list">
+                </div>
+        </div>
+        <footer class="modal-footer cart-view-footer">
+            <div class="cart-summary-total">
+                총 주문 금액: <span id="cart-view-total-price">0원</span>
+            </div>
+            <button id="cart-submit-btn">주문하기</button>
+        </footer>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/client.js"></script>
