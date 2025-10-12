@@ -1,4 +1,4 @@
-// public/js/client.js (요청 반영 통합 버전)
+// public/js/client.js (최종 통합 버전)
 
 const socket = io();
 
@@ -29,7 +29,7 @@ const cartItemsListEl = document.getElementById('cart-items-list');
 const cartViewTotalPriceEl = document.getElementById('cart-view-total-price');
 const cartSubmitBtn = document.getElementById('cart-submit-btn');
 
-// 주문 내역 모달 요소 (기존 추가된 것)
+// 주문 내역 모달 요소
 const orderHistoryModal = document.getElementById('order-history-modal');
 const historyCloseBtn = document.getElementById('history-close-btn');
 const modalBoothIdEl = document.getElementById('modal-booth-id');
@@ -70,7 +70,7 @@ async function loadMenus() {
     } catch (error) {
         console.error("메뉴 로드 실패:", error);
         menuListEl.innerHTML = `
-            <p style="text-align: center; color: var(--color-secondary); font-weight: bold;">
+            <p style="text-align: center; color: var(--color-secondary); font-weight: bold; padding-top: 50px;">
                 😭 메뉴를 불러오는 데 실패했습니다.<br>서버 상태(DB 연결, Node.js 실행)를 확인하세요.
             </p>
         `;
@@ -82,49 +82,65 @@ async function loadMenus() {
 // 4. 메뉴 UI (카테고리 & 리스트)
 // ===========================================
 
+// 카테고리 순서를 '사이드' -> '메인'으로 변경
 function renderCategoryTabs(allMenus) {
-    // DB에서 가져온 카테고리와 이벤트 탭을 포함한 카테고리 목록 생성
-    const categories = ['전체', ...new Set(allMenus.map(m => m.category).filter(c => c))];
-    if (!categories.includes('이벤트')) {
-        categories.push('이벤트');
-    }
-    
-    categoryTabsEl.innerHTML = categories.map(cat => 
-        `<button class="tab-button ${cat === '전체' ? 'active' : ''}" data-category="${cat}">${cat}</button>`
-    ).join('');
-}
-
-// 카테고리별 메뉴 필터링 및 렌더링
-function renderCategoryTabs(allMenus) {
-    // DB에서 가져온 카테고리 목록을 생성 (이벤트 제외)
     const dbCategories = [...new Set(allMenus.map(m => m.category).filter(c => c && c !== '이벤트'))];
     
-    // 1. 최종 순서 목록 초기화: '전체'가 가장 먼저
     let finalCategories = ['전체'];
 
-    // 2. '사이드' 추가 (존재한다면)
+    // 1. '사이드' 추가
     if (dbCategories.includes('사이드')) {
         finalCategories.push('사이드');
     }
-    // 3. '메인' 추가 (존재한다면)
+    // 2. '메인' 추가
     if (dbCategories.includes('메인')) {
         finalCategories.push('메인');
     }
 
-    // 4. 나머지 카테고리 추가 (예: '음료', '주류' 등)
+    // 3. 나머지 카테고리 추가
     dbCategories.forEach(cat => {
         if (cat !== '사이드' && cat !== '메인') {
             finalCategories.push(cat);
         }
     });
     
-    // 5. '이벤트'를 가장 마지막에 추가
+    // 4. '이벤트'를 가장 마지막에 추가
     finalCategories.push('이벤트');
 
     // 탭 버튼 렌더링
     categoryTabsEl.innerHTML = finalCategories.map(cat => 
         `<button class="tab-button ${cat === '전체' ? 'active' : ''}" data-category="${cat}">${cat}</button>`
     ).join('');
+}
+
+// 카테고리별 메뉴 필터링 및 렌더링
+function filterAndRenderMenus(category) {
+    let filteredMenus = menus;
+    
+    if (category === '이벤트') {
+        menuListEl.innerHTML = `
+            <p style="text-align: center; color: var(--color-light-gray); padding-top: 50px;">
+                현재 진행 중인 이벤트가 없습니다.
+            </p>`;
+        return;
+    }
+
+    if (category !== '전체') {
+        filteredMenus = menus.filter(menu => menu.category === category);
+    }
+    
+    menuListEl.innerHTML = ''; 
+    if (filteredMenus.length === 0) {
+        menuListEl.innerHTML = `<p style="text-align: center; color: var(--color-light-gray); padding-top: 50px;">
+            선택하신 카테고리의 메뉴가 없습니다.
+        </p>`;
+        return;
+    }
+
+    filteredMenus.forEach(menu => {
+        const card = createMenuCard(menu);
+        menuListEl.appendChild(card);
+    });
 }
 
 // 단일 메뉴 카드 생성 (클릭 가능한 UI)
@@ -158,11 +174,8 @@ function openDetailModal(menuId) {
     
     currentDetailMenu = menu;
     
-    // 현재 장바구니에 담긴 수량으로 초기화
-    let initialQuantity = 1;
-    if (cart[menuId]) {
-        initialQuantity = cart[menuId].quantity;
-    }
+    // 장바구니에 이미 담겨있는 경우 수량 불러오기, 없으면 1로 초기화
+    let initialQuantity = cart[menuId] ? cart[menuId].quantity : 1;
     
     // UI 업데이트
     modalMenuImage.src = `assets/${menu.image_url || 'default.jpg'}`;
@@ -178,6 +191,8 @@ function openDetailModal(menuId) {
 
 function updateDetailModal(quantity) {
     if (!currentDetailMenu) return;
+
+    if (quantity < 1) quantity = 1; // 최소 수량 1
 
     // 수량 업데이트
     modalQuantityEl.textContent = quantity;
@@ -269,7 +284,7 @@ function submitOrder() {
             booth_id: boothId,
             total_price: totalOrderPrice,
             items: orderItems,
-            note: '' // 요청 사항 필드 추가 (필요 시 UI 추가)
+            note: '' 
         };
 
         socket.emit('submit_order', orderData);
@@ -284,16 +299,67 @@ function submitOrder() {
 
 
 // ===========================================
-// 8. 이벤트 리스너 통합
+// 8. 주문 내역 조회 로직
+// ===========================================
+
+async function loadOrderHistory() {
+    if (boothId === 'N/A') {
+        orderHistoryListEl.innerHTML = '<p class="error-text">테이블 번호를 확인할 수 없습니다.</p>';
+        return;
+    }
+
+    try {
+        orderHistoryListEl.innerHTML = '<p class="loading-text" style="text-align: center; color: var(--color-light-gray);">주문 내역을 불러오는 중...</p>';
+        const response = await fetch(`/api/orders/${boothId}`);
+        if (!response.ok) throw new Error('주문 내역 로드 실패');
+        const orders = await response.json();
+        renderOrderHistory(orders);
+    } catch (error) {
+        console.error("주문 내역 로드 실패:", error);
+        orderHistoryListEl.innerHTML = '<p class="error-text" style="text-align: center; color: var(--color-secondary);">😭 주문 내역을 불러오는 데 오류가 발생했습니다.</p>';
+    }
+}
+
+function renderOrderHistory(orders) {
+    orderHistoryListEl.innerHTML = ''; 
+    if (orders.length === 0) {
+        orderHistoryListEl.innerHTML = '<p style="text-align: center; color: var(--color-light-gray);">아직 주문 내역이 없습니다.</p>';
+        return;
+    }
+
+    orders.forEach(order => {
+        const itemsHtml = order.items.map(item => `
+            <li>${item.name} x ${item.quantity}</li>
+        `).join('');
+        
+        const statusText = order.status === 'pending' ? '대기 중' : 
+                           order.status === 'processing' ? '조리 중' : 
+                           '✅ 완료';
+
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        card.innerHTML = `
+            <div class="history-header">
+                <span>${order.order_time} 주문</span>
+                <span class="history-status status-${order.status}">${statusText}</span>
+            </div>
+            <ul>${itemsHtml}</ul>
+            <p style="font-weight: bold; text-align: right; margin-top: 10px; color: var(--color-secondary);">총 금액: ${order.total_price.toLocaleString()}원</p>
+        `;
+        orderHistoryListEl.appendChild(card);
+    });
+}
+
+
+// ===========================================
+// 9. 이벤트 리스너 통합
 // ===========================================
 
 // 카테고리 탭 클릭 이벤트
 categoryTabsEl.addEventListener('click', (e) => {
     const target = e.target;
     if (target.classList.contains('tab-button')) {
-        // Active 클래스 초기화
         categoryTabsEl.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        // 새 버튼 Active 설정
         target.classList.add('active');
         filterAndRenderMenus(target.dataset.category);
     }
@@ -325,7 +391,7 @@ addToCartBtn.addEventListener('click', () => {
         quantity: quantity
     };
     
-    alert(`${currentDetailMenu.name} ${quantity}개를 장바구니에 담았습니다.`);
+    // alert(`${currentDetailMenu.name} ${quantity}개를 장바구니에 담았습니다.`);
     detailModal.style.display = 'none';
     updateCartBadge();
 });
@@ -348,19 +414,18 @@ cartItemsListEl.addEventListener('click', (e) => {
         } else if (target.classList.contains('btn-minus') && item.quantity > 1) {
             item.quantity -= 1;
         } else if (target.classList.contains('btn-minus') && item.quantity === 1) {
-            // 수량이 1일 때 마이너스 누르면 제거 확인
             if(confirm(`${item.name}을 장바구니에서 제거하시겠습니까?`)) {
                 delete cart[menuId];
             }
         }
         
-        // 장바구니 모달 닫힘 방지
         e.stopPropagation(); 
         
         renderCartView();
         updateCartBadge();
 
         if (Object.keys(cart).length === 0) {
+            // 장바구니가 완전히 비면 모달 닫기
             cartViewModal.style.display = 'none';
         }
     }
@@ -369,13 +434,7 @@ cartItemsListEl.addEventListener('click', (e) => {
 // 장바구니 모달: 주문하기 버튼
 cartSubmitBtn.addEventListener('click', submitOrder);
 
-// 주문 내역 버튼 (새로운 버튼이 없으므로 장바구니 아이콘 컨테이너를 재활용하여 버튼 역할 수행)
-// Note: `menu.html`에서 `view-orders-btn` 버튼은 제거되었으므로, 새롭게 장바구니 모달에 이 기능을 추가합니다.
-// 장바구니 보기 모달 내에서 주문 내역을 볼 수 있도록 별도 버튼을 만들어야 하지만, 현재는 요청된 UI 구조를 따릅니다.
-// 임시로, 테이블 번호 헤더를 클릭하면 주문 내역이 나오도록 처리합니다. (UI 부족)
-// -> `menu.html`에서 삭제했던 `view-orders-btn`이 요청되지 않았으므로, 주문 내역 모달을 여는 UI를 추가합니다.
-
-// -> `client.js`에서 모달 닫는 이벤트 추가
+// 모달 닫기 버튼 이벤트
 detailCloseBtn.addEventListener('click', () => detailModal.style.display = 'none');
 cartViewCloseBtn.addEventListener('click', () => cartViewModal.style.display = 'none');
 historyCloseBtn.addEventListener('click', () => orderHistoryModal.style.display = 'none');
@@ -386,57 +445,6 @@ boothNumberEl.addEventListener('click', () => {
     orderHistoryModal.style.display = 'block';
     loadOrderHistory(); // 주문 내역 로드 시작
 });
-
-
-// 주문 내역 조회 함수 (기존 로직 그대로 사용)
-async function loadOrderHistory() {
-    if (boothId === 'N/A') {
-        orderHistoryListEl.innerHTML = '<p class="error-text">테이블 번호를 확인할 수 없습니다.</p>';
-        return;
-    }
-
-    try {
-        orderHistoryListEl.innerHTML = '<p class="loading-text">주문 내역을 불러오는 중...</p>';
-        const response = await fetch(`/api/orders/${boothId}`);
-        if (!response.ok) throw new Error('주문 내역 로드 실패');
-        const orders = await response.json();
-        renderOrderHistory(orders);
-    } catch (error) {
-        console.error("주문 내역 로드 실패:", error);
-        orderHistoryListEl.innerHTML = '<p class="error-text">😭 주문 내역을 불러오는 데 오류가 발생했습니다.</p>';
-    }
-}
-
-function renderOrderHistory(orders) {
-    orderHistoryListEl.innerHTML = ''; 
-    if (orders.length === 0) {
-        orderHistoryListEl.innerHTML = '<p style="text-align: center; color: var(--color-light-gray);">아직 주문 내역이 없습니다.</p>';
-        return;
-    }
-
-    orders.forEach(order => {
-        const itemsHtml = order.items.map(item => `
-            <li>${item.name} x ${item.quantity} (${item.unit_price.toLocaleString()}원/개)</li>
-        `).join('');
-        
-        const statusText = order.status === 'pending' ? '대기 중' : 
-                           order.status === 'processing' ? '조리 중' : 
-                           '✅ 완료';
-
-        const card = document.createElement('div');
-        card.className = 'history-card';
-        card.innerHTML = `
-            <div class="history-header">
-                <span>주문 시간: ${order.order_time}</span>
-                <span class="history-status status-${order.status}">${statusText}</span>
-            </div>
-            <ul>${itemsHtml}</ul>
-            <p style="font-weight: bold; text-align: right; margin-top: 10px;">총 금액: ${order.total_price.toLocaleString()}원</p>
-        `;
-        orderHistoryListEl.appendChild(card);
-    });
-}
-
 
 // 초기화
 getBoothIdFromUrl();

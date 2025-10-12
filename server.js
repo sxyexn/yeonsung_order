@@ -52,7 +52,7 @@ pool.getConnection()
 // public 폴더 내의 파일을 정적으로 서비스
 app.use(express.static('public'));
 
-// 서버의 기본 경로 (http://localhost:3000/)로 접속 시 start.html을 제공 (index.html보다 우선)
+// 서버의 기본 경로 (http://localhost:3000/)로 접속 시 start.html을 제공
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'start.html'));
 });
@@ -118,6 +118,7 @@ app.get('/api/orders/:boothId', async (req, res) => {
     }
 });
 
+
 // ===========================================
 // 3. Socket.IO 실시간 통신
 // ===========================================
@@ -137,10 +138,10 @@ io.on('connection', (socket) => {
         const now = new Date();
 
         try {
-            // 1. DB에 주문 정보 저장 (orders 테이블)
+            // 1. DB에 주문 정보 저장 (orders 테이블) - note 필드 추가
             const [orderResult] = await pool.query(
-                'INSERT INTO orders (booth_id, total_price, status, order_time) VALUES (?, ?, ?, NOW())',
-                [orderData.booth_id, orderData.total_price, 'pending']
+                'INSERT INTO orders (booth_id, total_price, status, order_time, note) VALUES (?, ?, ?, NOW(), ?)',
+                [orderData.booth_id, orderData.total_price, 'pending', orderData.note || null]
             );
             const dbOrderId = orderResult.insertId;
 
