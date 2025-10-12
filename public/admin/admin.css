@@ -1,0 +1,162 @@
+/* public/admin/admin.css (이전 코드 유지) */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #007bff;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+}
+
+main {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* 대시보드 레이아웃 */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.card {
+    background-color: #252526;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h2 {
+    color: #ffc107;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.action-btn {
+    display: inline-block;
+    padding: 12px 25px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.primary-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.primary-btn:hover {
+    background-color: #c82333;
+}
+
+.secondary-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.secondary-btn:hover {
+    background-color: #0056b3;
+}
+
+/* 주문 섹션 스타일 (payment, serving 페이지에서 사용) */
+.order-section {
+    background-color: #252526;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.order-section h2 {
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+    margin-top: 0;
+    color: #f8f9fa;
+}
+
+/* 테이블 스타일 */
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.order-table th, .order-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+}
+
+.order-table th {
+    background-color: #333;
+    color: #adb5bd;
+    font-weight: bold;
+}
+
+.order-table tbody tr:hover {
+    background-color: #3a3a3a;
+}
+
+/* 입금 확인 버튼 스타일 */
+.confirm-btn {
+    background-color: #ffc107;
+    color: #212529;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.confirm-btn:hover {
+    background-color: #e0a800;
+}
+
+/* 서빙 완료 버튼 스타일 */
+.serve-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.serve-btn:hover {
+    background-color: #1e7e34;
+}
+
+.order-details {
+    font-size: 0.9em;
+    color: #bbb;
+    white-space: pre-wrap;
+}
+
+.status-confirmed {
+    color: #28a745;
+    font-weight: bold;
+}
