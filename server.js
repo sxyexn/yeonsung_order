@@ -1,12 +1,11 @@
-// server.js (최종 통합 버전)
+// server.js (MySQL 연결 및 Socket.IO 로직)
 
-// 모듈 가져오기
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
-const path = require('path'); // 경로 모듈 추가
+const path = require('path'); 
 
 // .env 파일 로드
 dotenv.config();
@@ -22,7 +21,6 @@ app.use(express.json());
 // 1. MySQL DB 연결 설정
 // ===========================================
 
-// DB 연결 풀 생성 (환경 변수 사용)
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -33,34 +31,31 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// DB 연결 테스트
 pool.getConnection()
     .then(connection => {
         console.log('✅ MySQL 연결 풀 생성 성공!');
         connection.release();
     })
     .catch(err => {
-        console.error('❌ MySQL 연결 풀 생성 실패:', err.message);
-        // 서버 시작을 막지는 않음
+        console.error('❌ MySQL 연결 풀 생성 실패: .env 파일 및 DB 상태 확인 필요', err.message);
     });
 
 
 // ===========================================
-// 2. 정적 파일 및 라우팅 설정
+// 2. 정적 파일 및 API 라우팅 설정
 // ===========================================
 
-// public 폴더 내의 파일을 정적으로 서비스
+// 💡 public 폴더를 정적 파일 루트로 설정 (CSS, JS, 이미지 로드 필수)
 app.use(express.static('public'));
 
-// 서버의 기본 경로 (http://localhost:3000/)로 접속 시 start.html을 제공
+// 기본 경로를 start.html로 설정
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'start.html'));
 });
 
-// 메뉴 목록을 가져오는 API 엔드포인트
+// 메뉴 목록 API (DB에서 image_url 포함 모든 정보 로드)
 app.get('/api/menus', async (req, res) => {
     try {
-        // SELECT * FROM menus 로 image_url 컬럼을 포함해 모든 데이터를 가져옵니다.
         const [rows] = await pool.query('SELECT * FROM menus ORDER BY category DESC, menu_id ASC');
         res.json(rows);
     } catch (error) {
@@ -72,20 +67,15 @@ app.get('/api/menus', async (req, res) => {
 // 테이블별 주문 내역을 가져오는 API 엔드포인트
 app.get('/api/orders/:boothId', async (req, res) => {
     const boothId = req.params.boothId;
-
     try {
-        // 1. 해당 부스의 주문 목록을 가져옵니다. (최신순 정렬)
+        // orders 테이블에서 해당 부스의 주문 정보 조회
         const [orders] = await pool.query(
             'SELECT order_id, total_price, status, order_time FROM orders WHERE booth_id = ? ORDER BY order_time DESC',
             [boothId]
         );
-
-        if (orders.length === 0) {
-            return res.json([]);
-        }
         
-        // 2. 각 주문의 상세 항목 (items) 정보를 메뉴 이름과 함께 병합합니다.
         const ordersWithItems = await Promise.all(orders.map(async (order) => {
+            // 해당 주문의 상세 항목과 메뉴 이름 조회
             const [items] = await pool.query(
                 `SELECT oi.quantity, oi.unit_price, m.name 
                  FROM order_items oi
@@ -98,7 +88,7 @@ app.get('/api/orders/:boothId', async (req, res) => {
             const orderTime = new Date(order.order_time).toLocaleTimeString('ko-KR', { 
                 hour: '2-digit', 
                 minute: '2-digit',
-                hour12: false // 24시간 형식으로 가정
+                hour12: false
             });
 
             return {
@@ -123,14 +113,15 @@ app.get('/api/orders/:boothId', async (req, res) => {
 // 3. Socket.IO 실시간 통신
 // ===========================================
 
-let activeOrders = []; // 현재 대기 중/조리 중인 주문 목록
+// 메모리 내에 활성 주문 목록을 저장합니다. (서버 재시작 시 초기화됨)
+let activeOrders = []; 
 let nextOrderId = 1; 
 
 io.on('connection', (socket) => {
     console.log('🔗 새 클라이언트 연결됨');
 
+    // 새로 연결된 클라이언트에게 현재 활성 주문 목록을 전송 (주방 화면용)
     socket.emit('initial_orders', activeOrders);
-
 
     // 고객 주문 접수 (submit_order 이벤트)
     socket.on('submit_order', async (orderData) => {
@@ -138,17 +129,17 @@ io.on('connection', (socket) => {
         const now = new Date();
 
         try {
-            // 1. DB에 주문 정보 저장 (orders 테이블) - note 필드 추가
+            // 1. DB에 주문 정보 저장 (orders 테이블)
             const [orderResult] = await pool.query(
                 'INSERT INTO orders (booth_id, total_price, status, order_time, note) VALUES (?, ?, ?, NOW(), ?)',
                 [orderData.booth_id, orderData.total_price, 'pending', orderData.note || null]
             );
             const dbOrderId = orderResult.insertId;
 
-            // 2. 주문 항목 처리 및 메뉴 이름 조회
+            // 2. 주문 항목 처리 및 저장
             const processedItems = [];
-            const itemQueries = orderData.items.map(async item => {
-                // 메뉴 정보를 DB에서 조회하여 이름과 함께 처리
+            await Promise.all(orderData.items.map(async item => {
+                // 메뉴 이름을 가져와서 주문 항목에 추가
                 const [menuRows] = await pool.query(
                     'SELECT name FROM menus WHERE menu_id = ?',
                     [item.menu_id]
@@ -156,25 +147,24 @@ io.on('connection', (socket) => {
 
                 const menuName = menuRows.length > 0 ? menuRows[0].name : '알 수 없는 메뉴';
 
-                // order_items 테이블에 상세 메뉴 저장
+                // order_items 테이블에 상세 주문 항목 저장
                 await pool.query(
                     'INSERT INTO order_items (order_id, menu_id, quantity, unit_price) VALUES (?, ?, ?, ?)',
                     [dbOrderId, item.menu_id, item.quantity, item.price]
                 );
 
-                // 주방 전송용 배열에 메뉴 이름과 함께 추가
                 processedItems.push({
                     menu_id: item.menu_id,
                     name: menuName, 
                     quantity: item.quantity,
                     price: item.price
                 });
-            });
-            await Promise.all(itemQueries);
+            }));
             
             // 3. 주방으로 전송할 주문 객체 생성
             const newOrder = {
-                order_id: orderId,
+                order_id: orderId, // 메모리상 ID
+                db_id: dbOrderId, // DB 저장 ID
                 booth_id: orderData.booth_id, 
                 total_price: orderData.total_price,
                 status: 'pending',
@@ -194,22 +184,30 @@ io.on('connection', (socket) => {
     });
 
     // 주방에서 주문 상태 변경 (change_status 이벤트)
-    socket.on('change_status', (data) => {
+    socket.on('change_status', async (data) => {
         const { order_id, new_status } = data;
         
         const orderIndex = activeOrders.findIndex(order => order.order_id === order_id);
 
         if (orderIndex !== -1) {
-            const oldStatus = activeOrders[orderIndex].status;
+            const dbId = activeOrders[orderIndex].db_id;
+            
+            try {
+                // DB의 주문 상태 업데이트
+                await pool.query('UPDATE orders SET status = ? WHERE order_id = ?', [new_status, dbId]);
+            } catch (error) {
+                console.error('주문 상태 DB 업데이트 실패:', error);
+                return; // DB 업데이트 실패 시 상태 변경을 진행하지 않음
+            }
 
             if (new_status === 'completed') {
-                const completedOrder = activeOrders.splice(orderIndex, 1)[0];
+                activeOrders.splice(orderIndex, 1);
                 io.emit('remove_order', order_id);
                 console.log(`[주문 완료] ID: ${order_id}`);
             } else {
                 activeOrders[orderIndex].status = new_status;
                 io.emit('status_updated', { order_id, new_status });
-                console.log(`[상태 변경] ID: ${order_id}, ${oldStatus} -> ${new_status}`);
+                console.log(`[상태 변경] ID: ${order_id}, -> ${new_status}`);
             }
         }
     });
@@ -227,6 +225,4 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`✅ 서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
-    console.log(`📱 고객 주문: http://localhost:${PORT}/`); 
-    console.log(`🍽️ 조리 현황판: http://localhost:${PORT}/kitchen.html`);
 });
