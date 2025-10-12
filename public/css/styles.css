@@ -38,10 +38,10 @@ body {
     padding: 0;
     background-color: var(--color-primary);
     color: var(--color-text);
-    /* 고정된 헤더와 탭 높이만큼 상단 여백 추가 */
+    /* 💡 이 부분이 중요: 모바일에서 전체 스크롤을 허용하고 고정 영역만큼 패딩 */
     padding-top: var(--total-fixed-height); 
-    /* 스크롤 시 튕기는 현상 방지 */
-    height: 100vh;
+    height: auto; /* 전체 내용 높이에 맞춤 */
+    min-height: 100vh; /* 최소한 화면 전체 높이는 채우도록 */
     overflow-x: hidden;
 }
 

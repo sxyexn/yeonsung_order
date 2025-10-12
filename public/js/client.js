@@ -146,15 +146,16 @@ function createMenuCard(menu) {
     card.className = 'menu-card';
     card.dataset.id = menu.menu_id;
     
-    card.addEventListener('touchstart', (e)=>{
-        e.preventDefault();
-    });
+    // 💡 중요: 터치 이벤트가 클릭을 방해하지 않도록, 불필요한 preventDefault 제거
+    // CSS의 touch-action: manipulation으로 더블탭 줌을 제어하고, click 이벤트만 사용합니다.
     
-    // 🎯 메뉴 클릭 이벤트 리스너 연결
-    card.addEventListener('click', () => openDetailModal(menu.menu_id)); 
+    // 🎯 메뉴 클릭 이벤트 리스너 연결 (가장 확실한 해결책)
+    card.addEventListener('click', () => {
+        // 메뉴 ID가 유효한지 확인 후 모달 열기 시도
+        openDetailModal(menu.menu_id);
+    }); 
 
     const priceFormatted = menu.price.toLocaleString() + '원'; 
-    // 💡 public/assets/ 폴더의 DB image_url을 사용하고, 로드 실패 시 default.jpg를 사용
     const imageUrl = menu.image_url || 'default.jpg'; 
 
     card.innerHTML = `
@@ -176,23 +177,25 @@ function createMenuCard(menu) {
 function openDetailModal(menuId) {
     const menu = menus.find(m => m.menu_id == menuId);
     
-    if (!menu) return;
+    if (!menu) { 
+        console.error("선택한 메뉴 ID가 메뉴 목록에 없습니다:", menuId);
+        showToast("오류: 메뉴 정보를 찾을 수 없습니다.");
+        return;
+    }
     
+    // ... (기존 모달 데이터 설정 로직 유지) ...
     currentDetailMenu = menu;
     let initialQuantity = cart[menuId] ? cart[menuId].quantity : 1;
     
-    // UI 업데이트
     modalMenuImage.src = `assets/${menu.image_url || 'default.jpg'}`; 
     modalMenuCategory.textContent = menu.category || '기타';
     modalMenuName.textContent = menu.name;
     modalMenuDescription.textContent = menu.description || '상세 설명 없음';
-    
-    // 🎯 단위 가격을 메뉴의 실제 가격으로 정확히 설정 (0원 오류 수정)
     modalMenuUnitPriceEl.textContent = `${menu.price.toLocaleString()}원`; 
     
-    // 수량 및 총 가격 업데이트 (담기 버튼 가격)
     updateDetailModal(initialQuantity);
 
+    // 🎯 모달을 확실하게 표시
     detailModal.style.display = 'block';
 }
 
