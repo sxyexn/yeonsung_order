@@ -146,6 +146,10 @@ function createMenuCard(menu) {
     card.className = 'menu-card';
     card.dataset.id = menu.menu_id;
     
+    card.addEventListener('touchstart', (e)=>{
+        e.preventDefault();
+    });
+    
     // 🎯 메뉴 클릭 이벤트 리스너 연결
     card.addEventListener('click', () => openDetailModal(menu.menu_id)); 
 
