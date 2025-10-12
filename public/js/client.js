@@ -95,35 +95,36 @@ function renderCategoryTabs(allMenus) {
 }
 
 // 카테고리별 메뉴 필터링 및 렌더링
-function filterAndRenderMenus(category) {
-    let filteredMenus = menus;
+function renderCategoryTabs(allMenus) {
+    // DB에서 가져온 카테고리 목록을 생성 (이벤트 제외)
+    const dbCategories = [...new Set(allMenus.map(m => m.category).filter(c => c && c !== '이벤트'))];
     
-    // '이벤트' 카테고리는 별도 필터링 로직 없이 빈 화면으로 간주하거나, 서버에서 이벤트 메뉴를 받아와야 함.
-    // 여기서는 '이벤트' 클릭 시 임시 메시지 표시
-    if (category === '이벤트') {
-        menuListEl.innerHTML = `
-            <p style="text-align: center; color: var(--color-light-gray); padding-top: 50px;">
-                현재 진행 중인 이벤트가 없습니다.
-            </p>`;
-        return;
+    // 1. 최종 순서 목록 초기화: '전체'가 가장 먼저
+    let finalCategories = ['전체'];
+
+    // 2. '사이드' 추가 (존재한다면)
+    if (dbCategories.includes('사이드')) {
+        finalCategories.push('사이드');
+    }
+    // 3. '메인' 추가 (존재한다면)
+    if (dbCategories.includes('메인')) {
+        finalCategories.push('메인');
     }
 
-    if (category !== '전체') {
-        filteredMenus = menus.filter(menu => menu.category === category);
-    }
-    
-    menuListEl.innerHTML = ''; 
-    if (filteredMenus.length === 0) {
-        menuListEl.innerHTML = `<p style="text-align: center; color: var(--color-light-gray); padding-top: 50px;">
-            선택하신 카테고리의 메뉴가 없습니다.
-        </p>`;
-        return;
-    }
-
-    filteredMenus.forEach(menu => {
-        const card = createMenuCard(menu);
-        menuListEl.appendChild(card);
+    // 4. 나머지 카테고리 추가 (예: '음료', '주류' 등)
+    dbCategories.forEach(cat => {
+        if (cat !== '사이드' && cat !== '메인') {
+            finalCategories.push(cat);
+        }
     });
+    
+    // 5. '이벤트'를 가장 마지막에 추가
+    finalCategories.push('이벤트');
+
+    // 탭 버튼 렌더링
+    categoryTabsEl.innerHTML = finalCategories.map(cat => 
+        `<button class="tab-button ${cat === '전체' ? 'active' : ''}" data-category="${cat}">${cat}</button>`
+    ).join('');
 }
 
 // 단일 메뉴 카드 생성 (클릭 가능한 UI)
