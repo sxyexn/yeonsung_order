@@ -16,34 +16,51 @@ const modalMenuImage = document.getElementById('modal-menu-image');
 const modalMenuCategory = document.getElementById('modal-menu-category');
 const modalMenuName = document.getElementById('modal-menu-name');
 const modalMenuDescription = document.getElementById('modal-menu-description');
-const modalMenuPrice = document.getElementById('modal-menu-price');
+const modalMenuUnitPriceEl = document.getElementById('modal-menu-unit-price'); // 🎯 단위 가격 요소
 const modalQuantityEl = document.getElementById('modal-quantity');
 const modalBtnMinus = document.getElementById('modal-btn-minus');
 const modalBtnPlus = document.getElementById('modal-btn-plus');
 const addToCartBtn = document.getElementById('add-to-cart-btn');
 
-// 장바구니 보기 모달 요소
+// 장바구니 보기 모달 요소 (생략)
 const cartViewModal = document.getElementById('cart-view-modal');
 const cartViewCloseBtn = document.getElementById('cart-view-close-btn');
 const cartItemsListEl = document.getElementById('cart-items-list');
 const cartViewTotalPriceEl = document.getElementById('cart-view-total-price');
 const cartSubmitBtn = document.getElementById('cart-submit-btn');
 
-// 주문 내역 모달 요소
+// 주문 내역 모달 요소 (생략)
 const orderHistoryModal = document.getElementById('order-history-modal');
 const historyCloseBtn = document.getElementById('history-close-btn');
 const modalBoothIdEl = document.getElementById('modal-booth-id');
 const orderHistoryListEl = document.getElementById('order-history-list');
 
+// 토스트 메시지 요소
+const toastMessageEl = document.getElementById('toast-message'); 
+
 // 2. 상태 변수
-let menus = []; // 전체 메뉴 목록
-let cart = {}; // { menu_id: { quantity: N, price: P, name: S, ... } }
+let menus = []; 
+let cart = {}; 
 let boothId = 'N/A';
-let currentDetailMenu = null; // 현재 상세 모달에 표시된 메뉴 객체
+let currentDetailMenu = null; 
 
 
 // ===========================================
-// 3. 초기화 및 데이터 로드
+// 3. 유틸리티 함수
+// ===========================================
+
+function showToast(message) {
+    toastMessageEl.textContent = message;
+    toastMessageEl.classList.add('show');
+    
+    setTimeout(() => {
+        toastMessageEl.classList.remove('show');
+    }, 3000); 
+}
+
+
+// ===========================================
+// 4. 초기화 및 데이터 로드 (생략)
 // ===========================================
 
 function getBoothIdFromUrl() {
@@ -65,7 +82,7 @@ async function loadMenus() {
         }
 
         renderCategoryTabs(menus);
-        filterAndRenderMenus('전체'); // 기본적으로 '전체' 메뉴 표시
+        filterAndRenderMenus('전체');
 
     } catch (error) {
         console.error("메뉴 로드 실패:", error);
@@ -79,41 +96,35 @@ async function loadMenus() {
 
 
 // ===========================================
-// 4. 메뉴 UI (카테고리 & 리스트)
+// 5. 메뉴 UI (카테고리 & 리스트)
 // ===========================================
 
-// 카테고리 순서를 '사이드' -> '메인'으로 변경
 function renderCategoryTabs(allMenus) {
     const dbCategories = [...new Set(allMenus.map(m => m.category).filter(c => c && c !== '이벤트'))];
-    
     let finalCategories = ['전체'];
 
-    // 1. '사이드' 추가
+    // 사이드 -> 메인 순서 강제
     if (dbCategories.includes('사이드')) {
         finalCategories.push('사이드');
     }
-    // 2. '메인' 추가
     if (dbCategories.includes('메인')) {
         finalCategories.push('메인');
     }
 
-    // 3. 나머지 카테고리 추가
+    // 나머지 카테고리 추가
     dbCategories.forEach(cat => {
         if (cat !== '사이드' && cat !== '메인') {
             finalCategories.push(cat);
         }
     });
     
-    // 4. '이벤트'를 가장 마지막에 추가
     finalCategories.push('이벤트');
 
-    // 탭 버튼 렌더링
     categoryTabsEl.innerHTML = finalCategories.map(cat => 
         `<button class="tab-button ${cat === '전체' ? 'active' : ''}" data-category="${cat}">${cat}</button>`
     ).join('');
 }
 
-// 카테고리별 메뉴 필터링 및 렌더링
 function filterAndRenderMenus(category) {
     let filteredMenus = menus;
     
@@ -143,17 +154,18 @@ function filterAndRenderMenus(category) {
     });
 }
 
-// 단일 메뉴 카드 생성 (클릭 가능한 UI)
+// 🎯 DB image_url을 사용해 카드 생성
 function createMenuCard(menu) {
     const card = document.createElement('div');
     card.className = 'menu-card';
     card.dataset.id = menu.menu_id;
-    card.addEventListener('click', () => openDetailModal(menu.menu_id)); // 클릭 시 상세 모달 열기
+    card.addEventListener('click', () => openDetailModal(menu.menu_id)); 
 
     const priceFormatted = menu.price.toLocaleString() + '원'; 
+    const imageUrl = menu.image_url || 'default.jpg'; // 🎯 DB image_url 사용
 
     card.innerHTML = `
-        <img src="assets/${menu.image_url || 'default.jpg'}" alt="${menu.name}" class="menu-image">
+        <img src="assets/${imageUrl}" alt="${menu.name}" class="menu-image">
         <div class="menu-details">
             <h3 style="margin-bottom: 5px;">${menu.name}</h3>
             <p class="description">${menu.description || ''}</p>
@@ -165,7 +177,7 @@ function createMenuCard(menu) {
 
 
 // ===========================================
-// 5. 메뉴 상세 모달 로직
+// 6. 메뉴 상세 모달 로직
 // ===========================================
 
 function openDetailModal(menuId) {
@@ -174,16 +186,19 @@ function openDetailModal(menuId) {
     
     currentDetailMenu = menu;
     
-    // 장바구니에 이미 담겨있는 경우 수량 불러오기, 없으면 1로 초기화
     let initialQuantity = cart[menuId] ? cart[menuId].quantity : 1;
     
     // UI 업데이트
-    modalMenuImage.src = `assets/${menu.image_url || 'default.jpg'}`;
+    modalMenuImage.src = `assets/${menu.image_url || 'default.jpg'}`; // 🎯 이미지 경로 설정
     modalMenuCategory.textContent = menu.category || '기타';
     modalMenuName.textContent = menu.name;
     modalMenuDescription.textContent = menu.description || '상세 설명 없음';
     
-    // 수량 및 가격 업데이트
+    // 🎯 단위 가격을 메뉴의 실제 가격으로 정확히 설정 (0원 오류 수정)
+    // 이 부분이 메뉴 설명 아래의 가격을 설정합니다.
+    modalMenuUnitPriceEl.textContent = `${menu.price.toLocaleString()}원`; 
+    
+    // 수량 및 총 가격 업데이트 (담기 버튼 가격)
     updateDetailModal(initialQuantity);
 
     detailModal.style.display = 'block';
@@ -192,12 +207,12 @@ function openDetailModal(menuId) {
 function updateDetailModal(quantity) {
     if (!currentDetailMenu) return;
 
-    if (quantity < 1) quantity = 1; // 최소 수량 1
+    if (quantity < 1) quantity = 1; 
 
     // 수량 업데이트
     modalQuantityEl.textContent = quantity;
     
-    // 총 가격 업데이트
+    // 총 가격 업데이트 (담기 버튼에 표시되는 금액)
     const totalPrice = currentDetailMenu.price * quantity;
     addToCartBtn.textContent = `${totalPrice.toLocaleString()}원 담기`;
     addToCartBtn.dataset.quantity = quantity;
@@ -205,15 +220,13 @@ function updateDetailModal(quantity) {
 
 
 // ===========================================
-// 6. 장바구니 UI 및 로직
+// 7. 장바구니 UI 및 로직 (생략)
 // ===========================================
 
-// 장바구니 UI 업데이트 (뱃지, 총액)
 function updateCartBadge() {
     let totalQuantity = 0;
     let totalPrice = 0;
     
-    // cart 객체 순회하며 총 개수/가격 계산
     Object.values(cart).forEach(item => {
         totalQuantity += item.quantity;
         totalPrice += item.quantity * item.price;
@@ -222,12 +235,10 @@ function updateCartBadge() {
     cartBadgeEl.textContent = totalQuantity;
     cartBadgeEl.style.display = totalQuantity > 0 ? 'block' : 'none';
     
-    // 장바구니 모달 푸터 업데이트
     cartViewTotalPriceEl.textContent = totalPrice.toLocaleString() + '원';
     cartSubmitBtn.disabled = totalQuantity === 0;
 }
 
-// 장바구니 보기 모달 렌더링
 function renderCartView() {
     cartItemsListEl.innerHTML = '';
     const items = Object.values(cart);
@@ -259,7 +270,7 @@ function renderCartView() {
 
 
 // ===========================================
-// 7. 주문 전송 (Socket.IO)
+// 8. 주문 전송 (Socket.IO) (생략)
 // ===========================================
 
 function submitOrder() {
@@ -272,7 +283,7 @@ function submitOrder() {
     const orderItems = Object.values(cart).map(item => ({
         menu_id: item.menu_id,
         quantity: item.quantity,
-        price: item.price // 단가
+        price: item.price
     }));
 
     const totalOrderPrice = orderItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
@@ -288,9 +299,8 @@ function submitOrder() {
         };
 
         socket.emit('submit_order', orderData);
-        alert(`테이블 ${boothId}번의 주문이 성공적으로 접수되었습니다! 잠시만 기다려 주세요.`);
+        showToast(`✅ ${boothId}번 테이블 주문이 접수되었습니다!`); 
         
-        // 주문 완료 후 장바구니 초기화
         cart = {};
         updateCartBadge();
         cartViewModal.style.display = 'none';
@@ -299,7 +309,7 @@ function submitOrder() {
 
 
 // ===========================================
-// 8. 주문 내역 조회 로직
+// 9. 주문 내역 조회 로직 (생략)
 // ===========================================
 
 async function loadOrderHistory() {
@@ -352,7 +362,7 @@ function renderOrderHistory(orders) {
 
 
 // ===========================================
-// 9. 이벤트 리스너 통합
+// 10. 이벤트 리스너 통합 (생략)
 // ===========================================
 
 // 카테고리 탭 클릭 이벤트
@@ -383,7 +393,6 @@ addToCartBtn.addEventListener('click', () => {
     if (!currentDetailMenu) return;
     const quantity = parseInt(addToCartBtn.dataset.quantity);
     
-    // 장바구니에 아이템 정보 저장 (이름, 가격 포함)
     cart[currentDetailMenu.menu_id] = {
         menu_id: currentDetailMenu.menu_id,
         name: currentDetailMenu.name,
@@ -391,7 +400,7 @@ addToCartBtn.addEventListener('click', () => {
         quantity: quantity
     };
     
-    // alert(`${currentDetailMenu.name} ${quantity}개를 장바구니에 담았습니다.`);
+    showToast(`${currentDetailMenu.name} ${quantity}개를 담았습니다.`); 
     detailModal.style.display = 'none';
     updateCartBadge();
 });
@@ -425,7 +434,6 @@ cartItemsListEl.addEventListener('click', (e) => {
         updateCartBadge();
 
         if (Object.keys(cart).length === 0) {
-            // 장바구니가 완전히 비면 모달 닫기
             cartViewModal.style.display = 'none';
         }
     }
@@ -443,7 +451,7 @@ historyCloseBtn.addEventListener('click', () => orderHistoryModal.style.display 
 boothNumberEl.addEventListener('click', () => {
     modalBoothIdEl.textContent = boothId;
     orderHistoryModal.style.display = 'block';
-    loadOrderHistory(); // 주문 내역 로드 시작
+    loadOrderHistory(); 
 });
 
 // 초기화

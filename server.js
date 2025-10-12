@@ -60,7 +60,7 @@ app.get('/', (req, res) => {
 // 메뉴 목록을 가져오는 API 엔드포인트
 app.get('/api/menus', async (req, res) => {
     try {
-        // 메뉴 테이블에서 모든 메뉴를 가져옵니다.
+        // SELECT * FROM menus 로 image_url 컬럼을 포함해 모든 데이터를 가져옵니다.
         const [rows] = await pool.query('SELECT * FROM menus ORDER BY category DESC, menu_id ASC');
         res.json(rows);
     } catch (error) {
