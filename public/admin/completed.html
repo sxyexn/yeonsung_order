@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문 완료 내역 | 관리자</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        /* 완료된 주문은 녹색으로 표시 */
+        .status-completed { color: #28a745; font-weight: bold; }
+        .order-section.completed { border: 3px solid #28a745; }
+    </style>
+</head>
+<body class="completed-page"> <header>
+        <h1>✅ 완료된 주문 내역</h1>
+        <p>최종 서빙 완료된 모든 주문의 내역입니다.</p>
+    </header>
+
+    <main>
+        <section id="completed-section" class="order-section completed">
+            <h2>총 완료 주문 (<span id="completed-count">0</span>건)</h2>
+            <div class="order-list-container">
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>#주문번호</th>
+                            <th>테이블</th>
+                            <th>총 금액 (원)</th>
+                            <th>주문 상세</th>
+                            <th>주문 시간</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody id="completed-orders-tbody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    
+    <script src="/socket.io/socket.io.js"></script> 
+    <script src="admin.js"></script> 
+</body>
+</html>
