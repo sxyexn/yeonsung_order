@@ -1,4 +1,4 @@
-// server.js (최종 버전: 기존 기능 100% 유지 + 주방 개편 로직 추가)
+// server.js (최종 보완 버전)
 
 const express = require('express');
 const http = require('http');
@@ -6,6 +6,8 @@ const socketIo = require('socket.io');
 const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
 const path = require('path');
+const fs = require('fs/promises'); // ✅ fs 모듈 추가 (파일 시스템)
+
 // ⚠️ routes/admin.js 파일 임포트
 const adminRouter = require('./routes/admin'); 
 const kitchenRouter = require('./routes/kitchen'); // ✅ 주방 라우터 추가
@@ -43,8 +45,34 @@ pool.getConnection()
         console.error('❌ MySQL 연결 풀 생성 실패:', err.message);
     });
 
+// 💡 데이터베이스 초기화 함수: schema.sql 실행
+async function initializeDatabase() {
+    try {
+        const connection = await pool.getConnection();
+        const sqlFilePath = path.resolve(__dirname, 'sql', 'schema.sql'); 
+        
+        // 💡 fs/promises를 사용하면 readFile에서 경로 오류를 잡아낼 수 있습니다.
+        const sql = await fs.readFile(sqlFilePath, { encoding: 'utf-8' });
+        
+        await connection.query(sql);
+        connection.release();
+        
+        console.log('✅ MySQL DB 초기화 및 메뉴 데이터 삽입 성공!');
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            console.error('❌ schema.sql 파일을 찾을 수 없습니다. 경로를 확인하세요:', err.path);
+        } else {
+             console.error('❌ DB 연결 또는 schema.sql 실행 실패. 서버를 종료합니다.');
+        }
+        console.error('오류 메시지:', err.message);
+        process.exit(1); // 💡 중요: 실패 시 서버 강제 종료 (ngrok이 실행되지 않도록)
+    }
+}
+
+
 // ===========================================
 // 2. 정적 파일 및 사용자/관리자 라우팅 설정
+// (기존 코드와 동일)
 // ===========================================
 app.use(express.static('public'));
 
@@ -128,6 +156,7 @@ app.use('/api/kitchen', kitchenRouter); // ✅ 주방 라우터 연결 추가
 
 // ===========================================
 // 5. Socket.IO 실시간 통신
+// (기존 코드와 동일)
 // ===========================================
 
 // ⚠️ 기존 activeOrders 변수 유지
@@ -149,8 +178,10 @@ io.on('connection', (socket) => {
         try {
             // DB에 주문 정보 저장 (status: 'pending', payment_status: 'unpaid'로 저장)
             const [orderResult] = await pool.query(
+                // 💡 payment_status 컬럼 추가
                 'INSERT INTO orders (booth_id, total_price, status, payment_status, order_time, note) VALUES (?, ?, ?, ?, NOW(), ?)',
-                [orderData.booth_id, orderData.total_price, 'pending', 'unpaid', orderData.note || null]
+                // 'pending' (status) 다음으로 'unpaid' (payment_status) 값 추가
+                [orderData.booth_id, orderData.total_price, 'pending', 'unpaid', orderData.note || null] 
             );
             const dbOrderId = orderResult.insertId;
 
@@ -233,7 +264,7 @@ io.on('connection', (socket) => {
     } catch (error) {
         console.error(`payment_confirmed_push 처리 중 오류 (ID: ${orderId}):`, error);
     }
-});
+    });
     
     // 주방에서 메뉴 상태 변경 (change_item_status 이벤트) - 기존 유지 + 푸시 강화
     socket.on('change_item_status', async (data) => {
@@ -270,6 +301,7 @@ io.on('connection', (socket) => {
 
 // ===========================================
 // 6. 서버 리스닝
+// (기존 코드와 동일)
 // ===========================================
 
 // ⚠️ 기존 activeOrders 로드 함수 유지 (호환성)
@@ -334,11 +366,26 @@ async function loadActiveItems() {
 
 
 const PORT = process.env.PORT || 3000;
-loadInitialActiveOrders().then(() => { // ⚠️ 기존 loadInitialActiveOrders 함수 호출 유지
-    server.listen(PORT, () => {
-        console.log(`✅ 서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
-        console.log(`📱 고객 주문: http://localhost:${PORT}/`); 
-        console.log(`🍽️ 주방 현황판: http://localhost:${PORT}/kitchen.html`);
-        console.log(`🧑‍💻 관리자 대시보드: http://localhost:${PORT}/admin/dashboard.html`); 
-    });
-});
+
+// 서버 시작 로직: DB 초기화 -> 주문 로드 -> 서버 리스닝
+(async () => {
+    try {
+        // 1. DB 초기화 (schema.sql 실행)
+        await initializeDatabase();
+        
+        // 2. 기존 activeOrders (호환성용) 로드
+        await loadInitialActiveOrders();
+        
+        // 3. 서버 리스닝 시작
+        server.listen(PORT, () => {
+            console.log(`✅ 서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
+            console.log(`📱 고객 주문: http://localhost:${PORT}/`); 
+            console.log(`🍽️ 주방 현황판: http://localhost:${PORT}/kitchen.html`);
+            console.log(`🧑‍💻 관리자 대시보드: http://localhost:${PORT}/admin/dashboard.html`); 
+        });
+    } catch (error) {
+        // initializeDatabase에서 이미 exit(1)을 호출하므로, 이 부분은 예비용입니다.
+        console.error('❌ 서버 시작 중 치명적인 오류 발생:', error);
+        process.exit(1); 
+    }
+})();

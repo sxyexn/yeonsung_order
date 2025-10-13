@@ -3,89 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>무한 미식 | 연성대 주점</title>
+    <title>무한 미식 - 메뉴 주문</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+
     <header class="main-header">
-        <img src="assets/yeonsung_logo.png" alt="연성대 로고" class="logo">
+        <img src="assets/yeonsung_logo.png" alt="연성대 로고" class="logo"> 
         <div class="header-info">
-            <h1>무한 미식</h1>
-            <p id="booth-number">테이블: N/A</p> 
+            <h1>컴퓨터소프트웨어과♡</h1>
+            <p id="booth-number">테이블 번호: -</p>
         </div>
-        <div class="cart-icon-container" id="cart-icon">
-            <svg class="cart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7.5 18c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zM19 18c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2zM.75 2h3.19l.775 1.667h15.222l2.36 10.439c.099.43.076.883-.069 1.303-.145.42-.416.797-.783 1.077a2.76 2.76 0 01-1.285.513H7.5c-.247 0-.488-.042-.718-.122l-.782-1.688H1.5V14H.75V2zm5.72 10l-1.09-4.833h13.064l-1.637 4.833H6.47z"/>
-            </svg>
-            <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+        <div class="cart-icon-container" id="open-cart-btn">
+            <svg class="cart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.44C4.64 15.07 5.61 16 7 16h12v-2H7l1.1-2 2.7-5H21V4H5.21L4.2 2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            <span class="cart-badge" id="cart-count">0</span>
         </div>
     </header>
 
-    <nav class="category-tabs" id="category-tabs">
-        </nav>
+    <div class="category-tabs" id="category-tabs">
+        <button class="tab-button active" data-category="all">전체</button>
+        <button class="tab-button" data-category="메인">메인</button>
+        <button class="tab-button" data-category="사이드">사이드</button>
+        <button class="tab-button" data-category="이벤트">이벤트</button>
+    </div>
 
     <main class="menu-container">
         <div id="menu-list">
-             <p style="text-align: center; color: var(--color-light-gray); padding: 50px;">메뉴를 불러오는 중...</p>
-        </div>
+            </div>
     </main>
+    
+    <div id="detailModal" class="modal">
+        <div class="detail-modal-content">
+            <span class="close-btn-fixed" id="close-detail-modal">&times;</span>
+            <img id="modal-menu-image" src="" alt="메뉴 이미지" class="modal-menu-image">
 
-    <div id="detail-modal" class="modal">
-        <div class="modal-content detail-modal-content">
-            <div class="close-btn-fixed" id="detail-close-btn">&times;</div>
-            
-            <img src="assets/default.jpg" alt="메뉴 이미지" class="modal-menu-image" id="modal-menu-image">
-            
             <div class="modal-body-content">
-                <p class="menu-tag" id="modal-menu-category"></p>
+                <span id="modal-menu-category" class="menu-tag">메인</span>
                 <h2 id="modal-menu-name">메뉴 이름</h2>
-                <p class="modal-menu-description" id="modal-menu-description"></p>
-                <p class="modal-menu-unit-price" id="modal-menu-unit-price">0원</p>
-            </div>
+                <p class="modal-menu-description" id="modal-menu-description">메뉴 설명</p>
+                
+                <div class="modal-quantity-control">
+                    <span>수량</span>
+                    <div class="quantity-controls">
+                        <button id="qty-minus">-</button>
+                        <span class="quantity" id="modal-quantity">1</span>
+                        <button id="qty-plus">+</button>
+                    </div>
+                </div>
 
-            <div class="modal-quantity-control">
-                <span>수량</span>
-                <div class="quantity-controls">
-                    <button class="btn-minus" id="modal-btn-minus">-</button>
-                    <span class="quantity" id="modal-quantity">1</span>
-                    <button class="btn-plus" id="modal-btn-plus">+</button>
+                <div class="modal-menu-unit-price" id="modal-price-display">
+                    12,900원
                 </div>
             </div>
+            
+            <button id="continue-ordering-btn" class="continue-ordering-btn">
+                « 메뉴 목록으로 돌아가 계속 주문하기
+            </button>
+
+            <div class="modal-footer">
+                <button id="add-to-cart-btn">장바구니 담기 (총 12,900원)</button>
+            </div>
         </div>
+    </div>
+
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-cart-modal">&times;</span>
+            <h2>장바구니 확인</h2>
+
+            <div id="cart-items-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;">
+                <p style="text-align: center; color: var(--color-light-gray);">장바구니가 비어있습니다.</p>
+            
+            <div id="cartModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close-btn" id="close-cart-modal">&times;</span>
+                            <h2>장바구니 확인</h2>
+                
+                            <div id="cart-items-list">
+                                <p style="text-align: center; color: var(--color-light-gray);">장바구니가 비어있습니다.</p>
+                            </div>
+                            <button id="continue-ordering-cart-btn" class="continue-ordering-btn">
+                                « 메뉴 목록으로 돌아가 계속 주문하기
+                            </button>
+            </div>
+            
+            <div class="cart-view-footer">
+                <div class="cart-summary-total">
+                    <span>총 결제 금액:</span>
+                    <span id="cart-total-price">0원</span>
+                </div>
+                <button id="submit-order-btn" disabled>주문하기</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast-message"></div>
+
+    <script>
+        // 현재는 더미 데이터로 작동하며, 실제로는 서버에서 받아와야 합니다.
+        const DUMMY_MENU_DATA = [
+            { id: 1, name: '렌고쿠의 불꽃 숨결', price: 12900, category: '메인', description: '강렬하게 불타오르는 제육볶음.', image_url: 'j.png' },
+            { id: 2, name: '꺽쇠 까마귀 발', price: 14900, category: '메인', description: '중독적인 매운맛의 닭발.', image_url: 'd.png' },
+            { id: 3, name: '네즈코의 치유 한 입', price: 3500, category: '사이드', description: '부드럽고 담백한 주먹밥.', image_url: 'b.png' },
+            { id: 4, name: '아카자의 눈물', price: 5000, category: '사이드', description: '치즈와 고소한 토핑.', image_url: 'p.png' },
+            { id: 5, name: '이노스케의 야생 옥수수', price: 5000, category: '사이드', description: '달콤한 옥수수와 치즈의 조합.', image_url: 'c.png' }
+        ];
+
         
-        <footer class="modal-footer">
-            <button id="add-to-cart-btn">0원 담기</button>
-        </footer>
-    </div>
-    
-    <div id="order-history-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" id="history-close-btn">&times;</span>
-            <h2>테이블 <span id="modal-booth-id"></span>번 주문 내역</h2>
-            <div id="order-history-list">
-                <p class="loading-text">주문 내역을 불러오는 중...</p>
-            </div>
-        </div>
-    </div>
-    
-    <div id="cart-view-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" id="cart-view-close-btn">&times;</span>
-            <h2>장바구니</h2>
-            <div id="cart-items-list">
-                </div>
-        </div>
-        <footer class="modal-footer cart-view-footer">
-            <div class="cart-summary-total">
-                총 주문 금액: <span id="cart-view-total-price">0원</span>
-            </div>
-            <button id="cart-submit-btn">주문하기</button>
-        </footer>
-    </div>
 
-    <div id="toast-message" class="toast-message"></div>
+        let menuList = DUMMY_MENU_DATA;
+        let cart = []; // { menuId: 1, quantity: 2, price: 12900, name: '...' }
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="js/client.js"></script>
+        // =======================================
+        // 유틸리티 함수
+        // =======================================
+        const formatPrice = (price) => price.toLocaleString('ko-KR') + '원';
+
+        const getBoothId = () => {
+            return sessionStorage.getItem('current_booth_id') || '0';
+        };
+
+        const showToast = (message) => {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        };
+        
+        // =======================================
+        // 메뉴 리스트 렌더링
+        // =======================================
+        const renderMenuList = (filterCategory = 'all') => {
+            const listContainer = document.getElementById('menu-list');
+            listContainer.innerHTML = ''; // 기존 목록 비우기
+            
+            const filteredMenu = filterCategory === 'all'
+                ? menuList
+                : menuList.filter(menu => menu.category === filterCategory);
+
+            if (filteredMenu.length === 0) {
+                 listContainer.innerHTML = `<p style="text-align: center; margin-top: 30px; color: var(--color-light-gray);">현재 카테고리에는 메뉴가 없습니다.</p>`;
+                 return;
+            }
+
+            filteredMenu.forEach(menu => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.dataset.menuId = menu.id;
+                
+                card.innerHTML = `
+                    <img src="assets/${menu.image_url}" alt="${menu.name}" class="menu-image">
+                    <div class="menu-details">
+                        <h3>${menu.name}</h3>
+                        <p class="description">${menu.description}</p>
+                        <p class="price">${formatPrice(menu.price)}</p>
+                    </div>
+                `;
+                card.addEventListener('click', () => openDetailModal(menu.id));
+                listContainer.appendChild(card);
+            });
+        };
+
+        // =======================================
+        // 장바구니 업데이트
+        // =======================================
+        const updateCartDisplay = () => {
+            const cartCountElement = document.getElementById('cart-count');
+            const cartListElement = document.getElementById('cart-items-list');
+            const cartTotalPriceElement = document.getElementById('cart-total-price');
+            const submitOrderBtn = document.getElementById('submit-order-btn');
+
+            const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // 뱃지와 총 금액 업데이트
+            cartCountElement.textContent = totalQuantity;
+            cartTotalPriceElement.textContent = formatPrice(totalPrice);
+            submitOrderBtn.disabled = totalQuantity === 0;
+
+            // 장바구니 리스트 업데이트
+            cartListElement.innerHTML = '';
+            if (cart.length === 0) {
+                cartListElement.innerHTML = `<p style="text-align: center; color: var(--color-light-gray);">장바구니가 비어있습니다.</p>`;
+                return;
+            }
+
+            cart.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                itemDiv.innerHTML = `
+                    <span class="cart-item-name">${item.name}</span>
+                    <span class="cart-item-price">${formatPrice(item.price)} x ${item.quantity}</span>
+                    <div class="cart-item-controls">
+                        <button data-id="${item.menuId}" data-action="minus">-</button>
+                        <span class="quantity">${item.quantity}</span>
+                        <button data-id="${item.menuId}" data-action="plus">+</button>
+                    </div>
+                `;
+                cartListElement.appendChild(itemDiv);
+            });
+        };
+
+        // =======================================
+        // 모달 관련 함수
+        // =======================================
+
+        let currentModalMenu = null;
+        let currentQuantity = 1;
+
+        const openDetailModal = (menuId) => {
+            currentModalMenu = menuList.find(m => m.id === menuId);
+            currentQuantity = 1;
+            
+            if (!currentModalMenu) return;
+
+            document.getElementById('modal-menu-image').src = `assets/${currentModalMenu.image_url}`;
+            document.getElementById('modal-menu-category').textContent = currentModalMenu.category;
+            document.getElementById('modal-menu-name').textContent = currentModalMenu.name;
+            document.getElementById('modal-menu-description').textContent = currentModalMenu.description;
+            
+            // 수량 및 가격 표시 업데이트
+            updateDetailModalDisplay();
+
+            document.getElementById('detailModal').style.display = 'block';
+        };
+
+        const updateDetailModalDisplay = () => {
+            const totalPrice = currentModalMenu.price * currentQuantity;
+            document.getElementById('modal-quantity').textContent = currentQuantity;
+            document.getElementById('modal-price-display').textContent = formatPrice(currentModalMenu.price); // 단위 가격
+            document.getElementById('add-to-cart-btn').textContent = `장바구니 담기 (총 ${formatPrice(totalPrice)})`;
+            document.getElementById('qty-minus').disabled = currentQuantity === 1;
+        };
+
+        const addToCart = () => {
+            const existingItem = cart.find(item => item.menuId === currentModalMenu.id);
+            if (existingItem) {
+                existingItem.quantity += currentQuantity;
+            } else {
+                cart.push({
+                    menuId: currentModalMenu.id,
+                    name: currentModalMenu.name,
+                    price: currentModalMenu.price,
+                    quantity: currentQuantity
+                });
+            }
+            showToast(`${currentModalMenu.name} ${currentQuantity}개 담았습니다.`);
+            document.getElementById('detailModal').style.display = 'none';
+            updateCartDisplay();
+        };
+
+        
+
+        // =======================================
+        // 이벤트 리스너 설정
+        // =======================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const boothId = getBoothId();
+            if (boothId === '0') {
+                // 테이블 번호가 없으면 입력 페이지로 리디렉션
+                // window.location.href = '/start.html'; 
+                // 임시로 디버깅을 위해 테이블 번호 표시
+                document.getElementById('booth-number').textContent = `테이블 번호: (디버그: ${boothId})`;
+            } else {
+                document.getElementById('booth-number').textContent = `테이블 번호: ${boothId}`;
+            }
+
+            renderMenuList('all');
+
+            document.getElementById('booth-number').addEventListener('click', () => {
+                const isConfirmed = confirm('테이블 번호를 변경하시겠습니까? 현재 장바구니의 내용은 유지되지 않습니다.');
+                if (isConfirmed) {
+                    sessionStorage.removeItem('current_booth_id');
+                    window.location.href = 'start.html';
+                }
+            });
+            
+            // 탭 이벤트
+            document.getElementById('category-tabs').addEventListener('click', (e) => {
+                if (e.target.classList.contains('tab-button')) {
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderMenuList(e.target.dataset.category);
+                }
+            });
+
+            // 장바구니 열기/닫기 이벤트
+            document.getElementById('open-cart-btn').addEventListener('click', () => {
+                updateCartDisplay();
+                document.getElementById('cartModal').style.display = 'block';
+            });
+            document.getElementById('close-cart-modal').addEventListener('click', () => {
+                document.getElementById('cartModal').style.display = 'none';
+            });
+
+            // 메뉴 상세 모달 닫기 이벤트
+            document.getElementById('close-detail-modal').addEventListener('click', () => {
+                document.getElementById('detailModal').style.display = 'none';
+            });
+
+            // 메뉴 상세 모달의 메뉴 목록 복귀 버튼 이벤트
+            document.getElementById('continue-ordering-detail-btn').addEventListener('click', () => {
+                document.getElementById('detailModal').style.display = 'none';
+            });
+
+            // 장바구니 모달의 메뉴 목록 복귀 버튼 이벤트
+            document.getElementById('continue-ordering-cart-btn').addEventListener('click', () => {
+                document.getElementById('cartModal').style.display = 'none';
+            });
+
+            // 모달 수량 조절 이벤트
+            document.getElementById('qty-plus').addEventListener('click', () => {
+                currentQuantity++;
+                updateDetailModalDisplay();
+            });
+            document.getElementById('qty-minus').addEventListener('click', () => {
+                if (currentQuantity > 1) {
+                    currentQuantity--;
+                    updateDetailModalDisplay();
+                }
+            });
+
+            // 장바구니 담기 이벤트
+            document.getElementById('add-to-cart-btn').addEventListener('click', addToCart);
+
+            // 장바구니 항목 수량 조절 (델리게이션)
+            document.getElementById('cart-items-list').addEventListener('click', (e) => {
+                const action = e.target.dataset.action;
+                const menuId = parseInt(e.target.dataset.id);
+                const itemIndex = cart.findIndex(item => item.menuId === menuId);
+
+                if (itemIndex > -1) {
+                    if (action === 'plus') {
+                        cart[itemIndex].quantity++;
+                    } else if (action === 'minus') {
+                        cart[itemIndex].quantity--;
+                        if (cart[itemIndex].quantity < 1) {
+                            cart.splice(itemIndex, 1); // 0개 되면 삭제
+                        }
+                    }
+                    updateCartDisplay();
+                }
+            });
+
+            // 최종 주문하기 버튼 (실제 서버 통신 로직이 들어갈 곳)
+            document.getElementById('submit-order-btn').addEventListener('click', () => {
+                if (cart.length > 0) {
+                    // 💡 여기에 AJAX를 이용한 서버 (Node.js) 주문 요청 코드가 들어갑니다.
+                    const orderData = {
+                        booth_id: getBoothId(),
+                        total_price: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                        items: cart.map(item => ({
+                            menu_id: item.menuId,
+                            quantity: item.quantity,
+                            unit_price: item.price
+                        }))
+                    };
+                    
+                    console.log('최종 주문 데이터:', orderData);
+                    showToast('주문이 접수되었습니다! (서버 연동 필요)');
+                    cart = []; // 주문 후 장바구니 비우기
+                    document.getElementById('cartModal').style.display = 'none';
+                    updateCartDisplay();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

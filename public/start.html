@@ -2,41 +2,68 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>테이블 번호 입력</title>
-    <link rel="stylesheet" href="css/styles.css">
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>주문 시작 - 테이블 번호 입력</title>
+    <link rel="stylesheet" href="css/styles.css"> 
+    
+    </head>
 <body>
+
     <header class="main-header">
         <img src="assets/yeonsung_logo.png" alt="연성대 로고" class="logo"> 
         <div class="header-info">
             <h1>무한 미식</h1>
-            <p>테이블 번호를 입력해 주세요</p>
         </div>
     </header>
 
     <main class="start-container">
-        <h2>주문할 테이블 번호를 입력하세요</h2>
-        <input type="number" id="booth-input" placeholder="예: 9" required min="1">
-        <button id="start-btn">주문 시작하기</button>
+        <h2>주문하실 테이블 번호를 입력하세요</h2>
+        
+        <div style="width: 100%; max-width: 350px;"> 
+            <input type="number" 
+                   id="booth-input" 
+                   placeholder="ex) 9" 
+                   required 
+                   min="1" 
+                   inputmode="numeric"> <button id="start-btn">메뉴 보기 및 주문 시작</button>
+            <p id="error-message" class="alert-message">유효한 테이블 번호 (1 이상)를 입력해 주세요.</p>
+        </div>
     </main>
 
     <script>
-        document.getElementById('start-btn').addEventListener('click', () => {
-            const boothId = document.getElementById('booth-input').value;
-            if (boothId && parseInt(boothId) > 0) {
-                // index.html 이름을 menu.html로 변경했다고 가정하고 이동
-                window.location.href = `/menu.html?booth=${boothId}`;
-            } else {
-                alert('유효한 테이블 번호를 입력해 주세요.');
-            }
-        });
-        
-        // 엔터 키로도 주문 시작 가능하도록 설정
-        document.getElementById('booth-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('start-btn').click();
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            const boothInput = document.getElementById('booth-input');
+            const startButton = document.getElementById('start-btn');
+            const errorMessage = document.getElementById('error-message');
+
+            const handleStart = () => {
+                const boothId = boothInput.value.trim();
+                const boothNumber = parseInt(boothId);
+                
+                if (boothId === '' || isNaN(boothNumber) || boothNumber < 1) {
+                    errorMessage.style.display = 'block';
+                    boothInput.focus();
+                    return;
+                }
+                
+                errorMessage.style.display = 'none';
+
+                // 테이블 번호를 세션 저장소에 저장
+                sessionStorage.setItem('current_booth_id', boothId);
+                
+                // 메뉴 페이지로 이동
+                window.location.href = '/menu.html'; 
+            };
+
+            startButton.addEventListener('click', handleStart);
+            
+            // 엔터 키 처리
+            boothInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); 
+                    handleStart();
+                }
+            });
         });
     </script>
 </body>
