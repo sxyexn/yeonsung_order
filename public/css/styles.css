@@ -32,7 +32,7 @@ body {
     color: var(--color-text);
     font-size: 16px;
     line-height: 1.5;
-    padding-top: calc(var(--header-height) + var(--tab-height));
+    padding-top: 150px
 }
 
 /* ======================================= */
@@ -194,6 +194,19 @@ body {
     inset: 0;
     background-color: rgba(0,0,0,0.5);
     backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    /* 배경을 확실하게 흰색으로 설정하여 글씨 가독성 확보 */
+    background-color: white; 
+    
+    margin: 10% auto; 
+    padding: 25px;
+    border-radius: 15px; 
+    width: 90%; 
+    max-width: 500px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* 그림자를 약간 더 진하게 */
+    animation: fadeIn 0.3s ease-out;
 }
 
 .detail-modal-content {
@@ -430,4 +443,362 @@ body {
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
+}
+
+/* ======================================= */
+/* 9. 주문 내역 및 결제 정보 관련 스타일 (추가/업데이트) */
+/* ======================================= */
+
+/* ------------------ 헤더 주문 내역 버튼 ------------------ */
+.header-action-container {
+    padding: 0 10px;
+}
+
+.header-btn {
+    background-color: var(--color-primary, #ff5722); /* primary fallback */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    box-shadow: var(--shadow-small, 0 1px 3px rgba(0,0,0,0.1));
+    transition: background-color 0.2s;
+}
+
+.header-btn:active {
+    background-color: var(--color-primary-darker, #e64a19);
+}
+
+/* ------------------ 계좌 정보 박스 (장바구니 및 내역 공통 사용) ------------------ */
+.account-info-box {
+    background-color: #fff3e0; /* 연한 노란색 배경 */
+    border: 1px solid #ffb74d; /* 주황색 테두리 */
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    color: #e65100; /* 진한 주황색 텍스트 */
+    font-size: 14px;
+}
+
+.account-info-box p {
+    margin: 5px 0;
+}
+
+.account-info-box strong {
+    font-size: 16px;
+    color: var(--color-primary-dark, #e64a19);
+}
+
+/* ------------------ 주문 내역 모달 내부 스타일 ------------------ */
+
+.history-card {
+    background-color: var(--color-background-light, #f7f7f7);
+    border: 1px solid var(--color-light-gray, #ddd);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--color-light-gray, #ddd);
+    margin-bottom: 8px;
+}
+
+.order-time {
+    font-size: 12px;
+    color: var(--color-text-secondary, #777);
+}
+
+.order-status {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 4px;
+    color: white;
+}
+
+/* 주문 상태별 색상 */
+.status-pending { background-color: #ff9800; } /* 주황: 접수 */
+.status-preparing { background-color: #2196f3; } /* 파랑: 조리 중 */
+.status-ready { background-color: #4caf50; } /* 초록: 준비 완료/픽업 대기 */
+.status-completed { background-color: #757575; } /* 회색: 완료 */
+
+.order-items-summary {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.order-items-summary li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 4px 0;
+    color: var(--color-text-main, #333);
+}
+
+.order-items-summary .item-name {
+    flex-grow: 1;
+}
+
+.history-footer {
+    border-top: 1px solid var(--color-light-gray, #ddd);
+    padding-top: 8px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+}
+
+.history-footer .total-price {
+    font-weight: bold;
+    color: var(--color-primary-dark, #e64a19);
+}
+
+/* 장바구니 항목 리스트 */
+#cart-items-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    padding: 10px 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--color-border);
+    font-size: 0.95em;
+}
+
+.cart-item-name {
+    flex-grow: 1;
+    font-weight: 600;
+    color: black;
+}
+
+.cart-item-price {
+    color: black;
+    font-weight: 600;
+    margin-right: 15px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.cart-item-controls {
+    display: flex;
+    align-items: center;
+}
+
+/* 장바구니 수량 조절 버튼 스타일 */
+.cart-item-controls button {
+    background: var(--color-background);
+    color: black;
+    border: none;
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 0;
+}
+
+.cart-item-controls button:hover {
+    background-color: var(--color-light-gray);
+}
+
+.cart-item-controls .quantity {
+    display: inline-block;
+    width: 30px;
+    text-align: center;
+    font-weight: 600;
+    color: black;
+}
+
+/* 장바구니 하단 요약 */
+.cart-view-footer {
+    padding-top: 15px;
+    border-top: 2px solid var(--color-border);
+}
+
+.cart-summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+#cart-total-price {
+    color: var(--color-primary);
+    font-size: 1.3em;
+}
+
+/* 주문하기 버튼 */
+#submit-order-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+#submit-order-btn:hover:not([disabled]) {
+    background-color: #E65100; /* 조금 더 진한 오렌지 */
+}
+
+#submit-order-btn[disabled] {
+    background-color: var(--color-light-gray);
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* 계좌 정보 박스 */
+.account-info-box {
+    background-color: #FFFDE7; /* 밝은 노란색 배경 */
+    border: 1px solid #FFECB3;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    color: #424242;
+}
+.account-info-box strong {
+    color: var(--color-primary);
+}
+
+/* 주문 내역 카드 스타일 */
+.history-card {
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: var(--color-white);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.order-id {
+    font-weight: 700;
+    color: var(--color-secondary);
+    font-size: 1.1em;
+}
+
+/* 주문 상태 태그 */
+.order-status {
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--color-white);
+}
+
+/* 주문 내역 목록에 스크롤 적용 */
+#order-history-list {
+    /* * 모달 높이에 맞게 적절한 최대 높이를 설정합니다.
+     * 뷰포트 높이(vh)를 기준으로 설정하면 모바일 화면에서 안정적입니다.
+     * (여기서는 예시로 40vh로 설정합니다. 실제 화면에 따라 조정 가능)
+     */
+    max-height: 40vh; /* 최대 높이 설정 (화면 높이의 40%) */
+    overflow-y: auto; /* 내용이 넘칠 경우 세로 스크롤바 생성 */
+    padding: 10px 0; /* 상하 여백 추가 */
+    margin-bottom: 15px; /* 하단 요소와의 간격 확보 */
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* 스크롤바가 목록 전체가 아닌, 내용 영역만 차지하도록 수정 */
+.modal-body {
+    /* 모달 내용 전체에 패딩이 있었다면, 이 부분이 스크롤이 되도록 합니다. */
+    /* 만약 주문내역이 orderHistoryModal 안에 바로 있다면, 아래 스타일은 무시합니다. */
+}
+
+
+.status-pending {
+    background-color: var(--color-pending); /* 파란색: 주문 접수 */
+}
+/* 나중에 상태가 추가된다면: 
+.status-completed { background-color: var(--color-success); }
+.status-cancelled { background-color: #F44336; } 
+*/
+
+.order-items-summary {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.order-items-summary li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+    padding: 5px 0;
+    color: #616161;
+}
+
+.item-name {
+    flex-grow: 1;
+}
+
+.history-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    margin-top: 10px;
+    border-top: 1px dashed var(--color-light-gray);
+    font-size: 1em;
+}
+
+.history-footer strong, .total-price {
+    font-weight: 700;
+    color: black;
+}
+
+.total-price {
+    color: var(--color-primary);
+    font-size: 1.2em;
+}
+
+/* 돌아가기 버튼 (모달 하단) */
+.continue-ordering-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background-color: var(--color-background);
+    color: var(--color-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.continue-ordering-btn:hover {
+    background-color: var(--color-border);
 }

@@ -14,6 +14,9 @@
             <h1>컴퓨터소프트웨어과♡</h1>
             <p id="booth-number">테이블 번호: -</p>
         </div>
+        <div class="header-action-container">
+            <button id="order-history-btn" class="header-btn">내 주문 내역</button>
+        </div>
         <div class="cart-icon-container" id="open-cart-btn">
             <svg class="cart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.44C4.64 15.07 5.61 16 7 16h12v-2H7l1.1-2 2.7-5H21V4H5.21L4.2 2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
             <span class="cart-badge" id="cart-count">0</span>
@@ -66,17 +69,32 @@
         </div>
     </div>
 
+    <div id="orderHistoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-history-modal">&times;</span>
+            <h2>테이블 주문 내역</h2>
+
+            
+            
+            <div id="order-history-list" style="max-height: 400px; overflow-y: auto; margin-bottom: 15px;">
+                <p style="text-align: center; color: var(--color-light-gray); padding: 20px;">주문 내역이 없습니다.</p>
+            </div>
+
+        </div>
+    </div>
+
     <div id="cartModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-cart-modal">&times;</span>
             <h2>장바구니 확인</h2>
 
+            <div class="account-info-box" style="margin-bottom: 15px;">
+                <p>⚠️ **결제 안내:** 주문 즉시 아래 계좌로 입금해주세요.</p>
+                <p>계좌번호: <strong id="account-number">카카오뱅크 3333-00-1234567 (컴퓨터과)</strong></p>
+            </div>
+
             <div id="cart-items-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;">
                 <p style="text-align: center; color: var(--color-light-gray);">장바구니가 비어있습니다.</p>
-        
-                <button id="continue-ordering-cart-btn" class="continue-ordering-btn">
-                    « 메뉴 목록으로 돌아가 계속 주문하기
-                </button>
             </div>
             
             <div class="cart-view-footer">
@@ -96,7 +114,6 @@
         // =======================================
         // 데이터 및 전역 변수
         // =======================================
-        // 현재는 더미 데이터로 작동하며, 실제로는 서버에서 받아와야 합니다.
         const DUMMY_MENU_DATA = [
             { id: 1, name: '렌고쿠의 불꽃 숨결', price: 12900, category: '메인', description: '강렬하게 불타오르는 제육볶음.', image_url: 'j.png' },
             { id: 2, name: '꺽쇠 까마귀 발', price: 14900, category: '메인', description: '중독적인 매운맛의 닭발.', image_url: 'd.png' },
@@ -109,9 +126,10 @@
         let cart = [];
         let currentModalMenu = null;
         let currentQuantity = 1;
+        let orderHistory = []; 
     
         // =======================================
-        // ⭐⭐ 1. Socket.IO 클라이언트 연결 추가 (핵심 수정) ⭐⭐
+        // Socket.IO 클라이언트 연결 (기존 유지)
         // =======================================
         const socket = io(); 
         
@@ -126,9 +144,49 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2500);
         };
+    
+        // =======================================
+        // 주문 내역 렌더링 함수 (기존 유지)
+        // =======================================
+        const renderOrderHistory = () => {
+            const historyListEl = document.getElementById('order-history-list');
+            const grandTotalEl = document.getElementById('history-grand-total'); // HTML에서 추가할 요소 ID
+            historyListEl.innerHTML = ''; 
+            
+            if (orderHistory.length === 0) {
+                historyListEl.innerHTML = `<p style="text-align: center; color: var(--color-light-gray); padding: 20px;">주문 내역이 없습니다.</p>`;
+                return;
+            }
+    
+            orderHistory.forEach((order, index) => {
+                const orderDiv = document.createElement('div');
+                orderDiv.className = 'history-card';
+                const orderNumber = orderHistory.length - index; 
+                
+                orderDiv.innerHTML = `
+                    <div class="history-header">
+                        <span class="order-id">#${orderNumber} 주문 (${new Date().toLocaleTimeString()})</span>
+                        <span class="order-status status-pending">주문 접수</span>
+                    </div>
+                    <ul class="order-items-summary">
+                        ${order.items.map(item => `
+                            <li>
+                                <span class="item-name">${item.name}</span>
+                                <span class="item-qty-price">${item.quantity}개 / ${formatPrice(item.price * item.quantity)}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                    <div class="history-footer">
+                        <strong>총 금액:</strong> 
+                        <span class="total-price">${formatPrice(order.total_price)}</span>
+                    </div>
+                `;
+                historyListEl.appendChild(orderDiv);
+            });
+        };
         
         // =======================================
-        // 메뉴 렌더링
+        // 메뉴 렌더링 (기존 유지)
         // =======================================
         const renderMenuList = (category = 'all') => {
             const listContainer = document.getElementById('menu-list');
@@ -161,7 +219,7 @@
         };
         
         // =======================================
-        // 장바구니 업데이트
+        // 장바구니 업데이트 (최종 수정: 버튼 중복 및 누락 문제 해결)
         // =======================================
         const updateCartDisplay = () => {
             const cartCountEl = document.getElementById('cart-count');
@@ -176,45 +234,48 @@
             cartTotalEl.textContent = formatPrice(totalPrice);
             submitBtn.disabled = totalQty === 0;
         
+            // '계속 주문하기' 버튼을 장바구니 목록 외부의 안전한 곳으로 이동시키지 않는 이상, 
+            // 목록이 갱신될 때마다 다시 추가해야 합니다.
+            // **HTML에서 이 버튼을 <div id="cart-items-list"> 바깥으로 옮기는 것을 강력히 권장합니다.**
+            
+            // 현재는 HTML 구조를 변경하지 않고 버그를 해결합니다.
+            const cartContinueBtn = document.getElementById('continue-ordering-cart-btn');
+            let continueBtnRemoved = false;
+            
+            // 1. 목록 초기화 전에 버튼을 임시로 제거합니다.
+            if (cartContinueBtn) {
+                cartContinueBtn.remove();
+                continueBtnRemoved = true;
+            }
+    
             cartListEl.innerHTML = '';
             if (cart.length === 0) {
                 cartListEl.innerHTML = `<p style="text-align:center;color:#bbb;">장바구니가 비어있습니다.</p>`;
-                // 장바구니가 비어 있을 때 '메뉴 목록으로 돌아가기' 버튼을 목록 하단에 표시 (기존 HTML 구조에 맞게 복구)
-                const staticContinueBtn = document.getElementById('continue-ordering-cart-btn');
-                if(staticContinueBtn) cartListEl.appendChild(staticContinueBtn);
-                return;
+            } else {
+                 cart.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'cart-item';
+                    div.innerHTML = `
+                        <span class="cart-item-name">${item.name}</span>
+                        <span class="cart-item-price">${formatPrice(item.price)} x ${item.quantity}</span>
+                        <div class="cart-item-controls">
+                            <button data-id="${item.menuId}" data-action="minus">-</button>
+                            <span class="quantity">${item.quantity}</span>
+                            <button data-id="${item.menuId}" data-action="plus">+</button>
+                        </div>
+                    `;
+                    cartListEl.appendChild(div);
+                });
             }
-        
-            cart.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'cart-item';
-                div.innerHTML = `
-                    <span class="cart-item-name">${item.name}</span>
-                    <span class="cart-item-price">${formatPrice(item.price)} x ${item.quantity}</span>
-                    <div class="cart-item-controls">
-                        <button data-id="${item.menuId}" data-action="minus">-</button>
-                        <span class="quantity">${item.quantity}</span>
-                        <button data-id="${item.menuId}" data-action="plus">+</button>
-                    </div>
-                `;
-                cartListEl.appendChild(div);
-            });
             
-            // 장바구니 항목이 있을 때도 '메뉴 목록으로 돌아가기' 버튼을 목록 하단에 표시
-            const staticContinueBtn = document.getElementById('continue-ordering-cart-btn');
-            if(staticContinueBtn) cartListEl.appendChild(staticContinueBtn);
-    
-            // 버튼 이벤트 재연결 (장바구니 항목이 동적으로 생성되므로, 이 부분이 중요)
-            const cartContinueBtn = document.getElementById('continue-ordering-cart-btn');
-            if (cartContinueBtn) {
-                cartContinueBtn.addEventListener('click', () => {
-                    document.getElementById('cartModal').style.display = 'none';
-                }, { once: true }); // 한 번만 실행되도록 설정
+            // 2. 목록 갱신 후, 다시 버튼을 목록의 맨 아래에 추가합니다.
+            if (continueBtnRemoved) {
+                cartListEl.insertAdjacentElement('beforeend', cartContinueBtn);
             }
         };
         
         // =======================================
-        // 모달 관련
+        // 모달 관련 (기존 유지)
         // =======================================
         const openDetailModal = (menuId) => {
             currentModalMenu = menuList.find(m => m.id === menuId);
@@ -251,17 +312,17 @@
         };
         
         // =======================================
-        // 이벤트 초기화
+        // 이벤트 초기화 (버튼 이벤트 리스너 제거 및 연결 재확인)
         // =======================================
         document.addEventListener('DOMContentLoaded', () => {
             // 테이블 번호 표시
             const boothId = getBoothId();
             document.getElementById('booth-number').textContent = `테이블 번호: ${boothId}`;
-        
+
             renderMenuList();
             updateCartDisplay();
-        
-            // 카테고리 탭 클릭
+
+            // 카테고리 탭 클릭 (생략 없음)
             document.getElementById('category-tabs').addEventListener('click', e => {
                 if (e.target.classList.contains('tab-button')) {
                     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -269,16 +330,17 @@
                     renderMenuList(e.target.dataset.category);
                 }
             });
-        
+
             // 장바구니 열기/닫기
             document.getElementById('open-cart-btn').addEventListener('click', () => {
                 updateCartDisplay();
                 document.getElementById('cartModal').style.display = 'block';
             });
+            // ✅ 장바구니 닫기 (X 버튼)
             document.getElementById('close-cart-modal').addEventListener('click', () => {
                 document.getElementById('cartModal').style.display = 'none';
             });
-        
+
             // 상세 모달 닫기
             document.getElementById('close-detail-modal').addEventListener('click', () => {
                 document.getElementById('detailModal').style.display = 'none';
@@ -286,46 +348,64 @@
             document.getElementById('continue-ordering-btn').addEventListener('click', () => {
                 document.getElementById('detailModal').style.display = 'none';
             });
-    
-            // 수량 조절
+
+            // 주문 내역 모달 열기/닫기 이벤트
+            document.getElementById('order-history-btn').addEventListener('click', () => {
+                renderOrderHistory(); 
+                document.getElementById('orderHistoryModal').style.display = 'block';
+            });
+
+            // ✅ 주문 내역 닫기 (X 버튼) - 이 부분이 핵심 수정!
+            // 주문 내역 모달을 닫는 역할은 'close-history-modal' 버튼에 완전히 연결합니다.
+            document.getElementById('close-history-modal').addEventListener('click', () => {
+                document.getElementById('orderHistoryModal').style.display = 'none';
+            });
+
+            // ❌ (제거됨) document.getElementById('continue-ordering-history-btn').addEventListener('click', ...)
+
+            // 수량 조절 (상세 모달)
             document.getElementById('qty-plus').addEventListener('click', () => { currentQuantity++; updateDetailModalDisplay(); });
             document.getElementById('qty-minus').addEventListener('click', () => { if(currentQuantity>1){currentQuantity--; updateDetailModalDisplay();} });
-        
+
             // 장바구니 담기
             document.getElementById('add-to-cart-btn').addEventListener('click', addToCart);
-        
+
             // 장바구니 수량 조절 (델리게이션)
             document.getElementById('cart-items-list').addEventListener('click', e => {
                 if (e.target.tagName !== 'BUTTON') return;
                 
                 const action = e.target.dataset.action;
-                const menuId = parseInt(e.target.dataset.id);
-                const idx = cart.findIndex(i=>i.menuId===menuId);
-                if(idx<0) return;
+                const menuId = parseInt(e.target.dataset.id); 
                 
-                if(action==='plus') cart[idx].quantity++;
-                else if(action==='minus') {
+                const idx = cart.findIndex(i => i.menuId === menuId); 
+                
+                if(idx < 0) return;
+                
+                if(action === 'plus') cart[idx].quantity++;
+                else if(action === 'minus') {
                     cart[idx].quantity--;
-                    if(cart[idx].quantity<1) cart.splice(idx,1);
+                    if(cart[idx].quantity < 1) cart.splice(idx, 1);
                 }
                 updateCartDisplay();
             });
-        
-            // ⭐⭐ 2. 주문하기 버튼 (Socket.IO 전송 로직 활성화 - 핵심 수정) ⭐⭐
+
+            // 주문하기 버튼
             document.getElementById('submit-order-btn').addEventListener('click', () => {
                 if(cart.length>0){
                     const orderData = {
                         booth_id: getBoothId(),
                         total_price: cart.reduce((sum,i)=>sum+i.price*i.quantity,0),
-                        items: cart.map(i=>({menu_id:i.menuId, quantity:i.quantity, price:i.price})) // price는 unit_price로 서버에 전송됨
+                        items: cart.map(i=>({menuId:i.menuId, name:i.name, price:i.price, quantity:i.quantity}))
                     };
                     
-                    console.log('최종 주문 데이터:', orderData);
-                    
-                    // 💡 서버로 'submit_order' 이벤트 전송 (DB 저장 및 주방 알림 트리거)
+                    // 1. 주문 내역에 현재 장바구니 내용 추가
+                    orderHistory.unshift(orderData); 
+
+                    // 2. 서버로 'submit_order' 이벤트 전송
                     socket.emit('submit_order', orderData);
-    
-                    showToast('주문이 접수되었습니다!'); // 서버 응답을 기다리는 것이 더 좋지만, 일단 즉시 피드백 제공
+
+                    // 3. UI 업데이트
+                    showToast('주문이 접수되었습니다!'); 
                     cart=[];
                     document.getElementById('cartModal').style.display='none';
                     updateCartDisplay();
@@ -333,7 +413,7 @@
                     showToast('장바구니가 비어있습니다.');
                 }
             });
-        
+
             // 테이블 번호 변경
             document.getElementById('booth-number').addEventListener('click', () => {
                 if(confirm('테이블 번호를 변경하시겠습니까? 현재 장바구니 내용은 사라집니다.')){
