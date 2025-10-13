@@ -46,18 +46,16 @@ CREATE TABLE orders (
 -- 4. 주문 상세 테이블 (order_items)
 -- 💡 server.js의 submit_order 로직에 맞게 unit_price 컬럼 추가됨
 -- --------------------------------------------------------
-CREATE TABLE order_items (
-    item_id INT PRIMARY KEY AUTO_INCREMENT,
-    order_id INT NOT NULL,
-    menu_id INT NOT NULL,
+-- order_items 테이블 정의 (예시)
+CREATE TABLE IF NOT EXISTS order_items (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    menu_id INT,
     quantity INT NOT NULL,
-    
-    -- 💡 추가됨: 주문 당시의 단가 (나중에 메뉴 가격이 바뀌어도 주문 기록을 보존)
-    unit_price INT NOT NULL, 
-
-    -- 외래 키 설정: 주문 ID는 orders 테이블을 참조
-    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
-    -- 외래 키 설정: 메뉴 ID는 menus 테이블을 참조
+    unit_price INT NOT NULL,
+    -- 🚨 여기에 item_status 컬럼 추가 🚨
+    item_status ENUM('processing', 'cooking', 'ready_to_serve', 'served', 'cancelled') NOT NULL DEFAULT 'processing', 
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (menu_id) REFERENCES menus(menu_id)
 );
 
