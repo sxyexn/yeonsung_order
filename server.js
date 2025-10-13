@@ -37,8 +37,17 @@ const pool = mysql.createPool({
 async function initializeDatabase() {
     try {
         const connection = await pool.getConnection();
-        const sqlFilePath = path.join(__dirname, 'schema.sql');
+        const sqlFilePath = path.resolve(__dirname, 'sql', 'schema.sql'); 
         
+        // 파일 존재 확인 (디버깅에 도움)
+        try {
+            await fs.access(sqlFilePath);
+        } catch (fileError) {
+            console.error('❌ schema.sql 파일을 찾을 수 없습니다. 경로를 확인하세요:', sqlFilePath);
+            connection.release();
+            process.exit(1); // 파일이 없으면 서버 종료
+        }
+
         const sql = await fs.readFile(sqlFilePath, { encoding: 'utf-8' });
         
         await connection.query(sql);
@@ -46,7 +55,9 @@ async function initializeDatabase() {
         
         console.log('✅ MySQL DB 초기화 및 메뉴 데이터 삽입 성공!');
     } catch (err) {
-        console.error('❌ DB 연결 또는 schema.sql 실행 실패. DB 상태와 파일 경로 확인:', err.message);
+        console.error('❌ DB 연결 또는 schema.sql 실행 실패. 서버를 종료합니다.');
+        console.error('오류 메시지:', err.message);
+        process.exit(1); // 💡 중요: 실패 시 서버 강제 종료 (ngrok이 실행되지 않도록)
     }
 }
 
@@ -135,8 +146,10 @@ io.on('connection', (socket) => {
         try {
             // 1. DB에 주문 정보 저장 (orders 테이블)
             const [orderResult] = await pool.query(
-                'INSERT INTO orders (booth_id, total_price, status, order_time, note) VALUES (?, ?, ?, NOW(), ?)',
-                [orderData.booth_id, orderData.total_price, 'pending', orderData.note || null]
+                // 💡 payment_status 컬럼 추가
+                'INSERT INTO orders (booth_id, total_price, status, payment_status, order_time, note) VALUES (?, ?, ?, ?, NOW(), ?)',
+                // 'pending' (status) 다음으로 'unpaid' (payment_status) 값 추가
+                [orderData.booth_id, orderData.total_price, 'pending', 'unpaid', orderData.note || null] 
             );
             const dbOrderId = orderResult.insertId;
 
@@ -230,4 +243,5 @@ server.listen(PORT, async () => {
     console.log(`✅ 서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
     // 💡 서버 시작 시 DB 초기화 함수 호출
     await initializeDatabase(); 
+    // DB 초기화가 완료되어야만 이 아래의 로직이 실행됩니다.
 });
