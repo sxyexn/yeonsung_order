@@ -1,396 +1,249 @@
 /* ======================================= */
-/* 1. 디자인 변수 (고정 높이 정의) */
+/* 1. 색상 변수 (업데이트) */
 /* ======================================= */
 :root {
-    /* 💡 색상 팔레트 조정: 청량하고 세련된 느낌 강조 */
-    --color-primary: #3a3a3a;             /* 메인 배경 및 카드 배경 */
-    --color-secondary: #ff8c00;           /* 핵심 버튼, 활성화 색상 (세련된 청록색) */
-    --color-secondary-hover: #cc7000;     /* secondary 버튼 hover/active 색상 */
-    --color-accent: #2E6A14;              /* 주문 접수 버튼 (차분한 녹색) */
-    --color-danger: #ea2c2c;              /* 위험 요소 (주문 금액 등) */
-    --color-text: #F0F0F0;                /* 진한 텍스트 */
-    --color-light-gray: #B0B0B0;          /* 비활성화, 부가 텍스트 */
-    --color-card-bg: #212121;             /* 메뉴 카드 배경 (미세한 푸른빛) */
-    --color-background-fade: #121212;     /* 본문 배경색 */
-    
-    --header-height: 60px;                /* 헤더 높이 */
-    --tab-height: 50px;                   /* 카테고리 탭 높이 */
-    --total-fixed-height: calc(var(--header-height) + var(--tab-height));
-    --max-mobile-width: 600px;            /* 모바일 UI 최대 너비 제한 */
+    --color-primary: #4f46e5;           /* 메인 버튼, 포인트 색상 */
+    --color-secondary: #f59e0b;         /* 서브 버튼 / 강조 색상 */
+    --color-secondary-hover: #d97706;   /* 서브 버튼 호버 */
+    --color-accent: #10b981;            /* 주문 접수 버튼 */
+    --color-danger: #ef4444;            /* 가격, 위험 표시 */
+    --color-text: #1f2937;              /* 기본 텍스트 */
+    --color-light-gray: #6b7280;        /* 부가 텍스트 */
+    --color-card-bg: #ffffff;           /* 카드 배경 */
+    --color-background-fade: #f5f5f5;   /* 전체 배경 */
+    --color-shadow: rgba(0,0,0,0.12);
+
+    --header-height: 60px;
+    --tab-height: 50px;
+    --max-mobile-width: 600px;
 }
 
 /* ======================================= */
-/* 2. 전역 및 레이아웃 */
-/* ======================================= */
+/* 2. 전역 */
 * {
     box-sizing: border-box;
-    /* 🎯 텍스트 선택 및 더블 탭 줌인 현상 완화 */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -ms-touch-action: manipulation;
-    touch-action: manipulation;
-}
-
-html {
-    /* 부드러운 스크롤 */
-    scroll-behavior: smooth; 
+    margin: 0;
+    padding: 0;
+    font-family: 'Pretendard', sans-serif;
 }
 
 body {
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--color-background-fade); /* 페이지 배경색 */
+    background-color: var(--color-background-fade);
     color: var(--color-text);
-    padding-top: var(--total-fixed-height); 
-    min-height: 100vh;
-    overflow-x: hidden;
-    width: 100%;
-    /* 모바일 폰트 크기 미세 조정 */
-    font-size: 16px; 
+    font-size: 16px;
     line-height: 1.5;
+    padding-top: calc(var(--header-height) + var(--tab-height));
 }
 
 /* ======================================= */
-/* 3. 공통 헤더 스타일 (상단 고정) */
-/* ======================================= */
+/* 3. 헤더 */
 .main-header {
     position: fixed;
     top: 0;
     width: 100%;
-    background-color: var(--color-primary);
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #eeeeee;
-    /* 💡 그림자 강화: 더 부드럽고 입체감 있게 */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); 
-    z-index: 1010; 
-    height: var(--header-height);
-    max-width: var(--max-mobile-width); 
+    max-width: var(--max-mobile-width);
     left: 50%;
     transform: translateX(-50%);
+    height: var(--header-height);
+    background-color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    box-shadow: 0 2px 10px var(--color-shadow);
+    z-index: 1000;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    
 }
 
-.logo {
+.main-header .logo {
     width: 35px;
     height: 35px;
-    margin-right: 15px;
-    border-radius: 50%;
-    /* 💡 로고 주변에 미세한 테두리 추가 */
-    border: 1px solid #f0f0f0; 
+    border-radius: 8px;
 }
 
-.header-info {
-    flex-grow: 1;
-}
-
-.header-info h1 {
+.main-header h1 {
     font-size: 1.2em;
+    color: #fff;
     font-weight: 700;
-    color: var(--color-secondary);
-    margin: 0;
-}
-
-#booth-number {
-    font-size: 0.85em;
-    color: var(--color-danger); /* 테이블 번호 강조 */
-    font-weight: 600;
-    margin: 0;
-    cursor: pointer;
-    display: inline-block;
-    padding: 2px 8px;
-    background-color: var(--color-background-fade); /* 가장 어두운 배경 */
-    border: 1px solid var(--color-danger); /* 위험색 테두리 */
-    border-radius: 4px;
-    transition: background-color 0.2s, transform 0.1s;
-}
-
-#booth-number:active {
-    background-color: #300000; /* 활성 시 어둡게 */
-    transform: scale(0.98);
 }
 
 .cart-icon-container {
     position: relative;
     cursor: pointer;
-    margin-left: auto; 
-    padding: 10px;
-    /* 💡 터치 영역 확대 */
-    min-width: 40px; 
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.cart-icon {
-    width: 24px;
-    height: 24px;
-    color: var(--color-text);
 }
 
 .cart-badge {
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: -5px;
+    right: -5px;
     background-color: var(--color-danger);
     color: white;
     border-radius: 50%;
-    padding: 2px 6px;
+    padding: 3px 7px;
     font-size: 0.7em;
     font-weight: bold;
-    min-width: 20px;
-    text-align: center;
-    line-height: 1.2;
-    transform: translate(5px, -5px);
-    /* 💡 장바구니 배지 강조 */
-    box-shadow: 0 0 5px rgba(231, 111, 81, 0.7); 
 }
 
 /* ======================================= */
-/* 4. 카테고리 탭 (상단 고정) */
-/* ======================================= */
+/* 4. 카테고리 탭 */
 .category-tabs {
     position: fixed;
     top: var(--header-height);
     width: 100%;
-    display: flex;
-    overflow-x: auto; 
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-    padding: 0 10px; 
-    background-color: var(--color-primary); 
-    border-bottom: 1px solid #e0e0e0;
-    z-index: 1000;
-    height: var(--tab-height);
-    max-width: var(--max-mobile-width); 
+    max-width: var(--max-mobile-width);
     left: 50%;
     transform: translateX(-50%);
-    align-items: center; /* 수직 중앙 정렬 */
-}
-
-/* 스크롤바 숨기기 (고급 모바일 UI) */
-.category-tabs::-webkit-scrollbar {
-    display: none;
-}
-.category-tabs {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    display: flex;
+    overflow-x: auto;
+    padding: 0 10px;
+    background-color: var(--color-background-fade);
+    border-bottom: 1px solid #ddd;
+    height: var(--tab-height);
+    z-index: 999;
+    margin-top: 10px;
 }
 
 .tab-button {
-    background: none;
-    border: none;
-    padding: 12px 18px; /* 패딩 증가 */
-    margin-right: 5px;
-    font-size: 1.0em;
+    padding: 10px 18px;
+    margin-right: 8px;
     font-weight: 500;
-    color: var(--color-text);
+    font-size: 1em;
+    border-radius: 12px 12px 0 0;
+    border: none;
+    background: #eee;
     cursor: pointer;
-    transition: color 0.2s, border-bottom 0.2s, background-color 0.2s;
+    transition: all 0.2s;
     flex-shrink: 0;
-    border-radius: 8px 8px 0 0;
-    line-height: 1.2;
-}
-
-.tab-button:hover:not(.active) {
-    background-color: #f0f0f0;
 }
 
 .tab-button.active {
-    color: var(--color-secondary);
-    font-weight: 700;
-    /* 💡 활성화 탭 아래에 깔끔한 선 */
-    border-bottom: 3px solid var(--color-secondary); 
-    background-color: var(--color-primary);
+    background-color: var(--color-secondary);
+    color: #fff;
 }
 
-
 /* ======================================= */
-/* 5. 메뉴 목록 (콘텐츠 영역) */
-/* ======================================= */
+/* 5. 메뉴 카드 */
 .menu-container {
-    padding: 20px 10px 80px; /* 하단 여백 추가 (푸터 공간) */
-    max-width: var(--max-mobile-width); 
-    margin-bottom: 30px;
-    width: 100%;
-    box-sizing: border-box;
-    overflow-x: hidden;
-    /* Flexbox 대신 Grid 사용 (더 정교한 레이아웃 가능) */
-    
-    flex-direction: column; 
-    align-content: stretch;
+    padding: 10px 10px 80px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    gap: 22px;
 }
 
 .menu-card {
-    background-color: var(--color-card-bg);
-    border-radius: 12px;
-    padding: 15px; 
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); 
-    border: 1px solid #444444; 
+    width: 100%;
+    max-width: 650px;
     display: flex;
-    align-items: center;
+    background-color: var(--color-card-bg);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px var(--color-shadow);
+    overflow: hidden;
     cursor: pointer;
-    transition: box-shadow 0.2s, transform 0.1s;
-    
-    /* 💡 수정: 가로 길이를 100%로 유지하여 좌우 여백 최소화 */
-    width: 100%; 
-    
-    /* 💡 최종 수정: 최대 너비를 600px로 늘려 max-mobile-width와 동일하게 설정 */
-    max-width: 600px; 
-    
-    box-sizing: border-box;
-    margin-bottom: 12px; 
+    transition: transform 0.1s, box-shadow 0.2s;
+    margin: 0 0 12px 0;
+    gap: 15px;
 }
 
-.menu-card:active {
-    /* 💡 터치 피드백: 작아지는 애니메이션 */
-    transform: scale(0.99); 
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+.menu-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px var(--color-shadow);
 }
 
 .menu-image {
-    width: 90px; 
-    height: 90px;
+    width: 100px;
+    height: 120px;
     object-fit: cover;
-    border-radius: 10px;
-    margin-right: 15px;
-    border: 2px solid var(--color-light-gray);
-    background-color: #f0f0f0;
-    flex-shrink: 0;
+    border-radius: 16px 0 0 16px;
 }
 
 .menu-details {
-    flex-grow: 1;
-    overflow: hidden;
-    padding-right: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .menu-details h3 {
     font-size: 1.2em;
     font-weight: 700;
-    margin: 0 0 5px 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin-bottom: 5px;
     color: var(--color-text);
 }
 
 .menu-details .description {
     font-size: 0.85em;
     color: var(--color-light-gray);
-    margin: 3px 0 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin-bottom: 10px;
 }
 
 .menu-details .price {
-    font-size: 1.1em;
     font-weight: 700;
+    font-size: 1.1em;
     color: var(--color-danger);
-    margin: 10px 0 0;
 }
 
-
 /* ======================================= */
-/* 6. 모달 공통 스타일 */
-/* ======================================= */
+/* 6. 모달 */
 .modal {
-    display: none; 
+    display: none;
     position: fixed;
-    z-index: 2000; 
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.6); /* 배경 투명도 약간 낮춤 */
+    z-index: 2000;
+    inset: 0;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
 }
 
-/* ======================================= */
-/* 6-1. 메뉴 상세 모달 (Detail Modal) */
-/* ======================================= */
 .detail-modal-content {
-    margin: 0 auto; 
-    padding: 0;
-    width: 100%;
+    background-color: var(--color-card-bg);
+    border-radius: 16px;
+    margin: 50px auto;
+    padding: 20px;
     max-width: var(--max-mobile-width);
-    height: 100vh;
-    border-radius: 0;
-    overflow-y: auto;
-    transform: none; 
     position: relative;
-    top: 0;
-    left: 0;
-    background-color: var(--color-primary);
-    box-shadow: none;
-    display: flex;
-    flex-direction: column;
 }
 
 .close-btn-fixed {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    /* 💡 닫기 버튼을 컨테이너 우측 상단에 배치 */
-    transform: translateX(calc(var(--max-mobile-width) / 2 - 45px)); 
-    z-index: 2200;
-    background-color: rgba(0, 0, 0, 0.4);
-    color: white;
-    font-size: 24px;
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    text-align: center;
-    border-radius: 50%;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.5em;
     cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.close-btn-fixed:hover {
-    background-color: rgba(0, 0, 0, 0.6);
+    color: var(--color-text-light);
+    background: #eee;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-menu-image {
     width: 100%;
-    height: 35vh; /* 뷰포트 높이의 35% 사용 */
+    height: 200px;
     object-fit: cover;
-    display: block;
+    border-radius: 12px;
+    margin-bottom: 15px;
 }
 
 .modal-body-content {
-    padding: 15px 15px 0 15px;
-    padding-bottom: 100px; /* 푸터 공간 확보 */
-    max-height: calc(80vh - 300px);
-    overflow-y: auto;
+    padding: 10px 0;
 }
 
-.menu-tag {
-    background-color: var(--color-light-gray);
+.modal-body-content h2 {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 10px;
     color: var(--color-text);
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 0.85em;
-    display: inline-block;
-    margin-bottom: 8px;
-    font-weight: 500;
 }
 
-#modal-menu-name {
-    font-size: 2.0em;
-    margin: 10px 0 10px;
-    font-weight: 800;
-}
-
-.modal-menu-description {
-    color: var(--color-text);
-    margin-bottom: 20px;
-    line-height: 1.6;
-    font-size: 1.0em;
+.modal-body-content p {
+    color: var(--color-light-gray);
+    line-height: 1.5;
+    margin-bottom: 15px;
 }
 
 .modal-menu-unit-price {
@@ -398,341 +251,107 @@ body {
     font-weight: bold;
     color: var(--color-danger);
     text-align: right;
-    margin-bottom: 20px;
-    padding-top: 10px;
 }
 
-.modal-quantity-control {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* ======================================= */
+/* 7. 모달 푸터 */
+.modal-footer {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    background-color: var(--color-background-fade);
     padding: 15px 0;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
-.quantity-controls {
     display: flex;
-    align-items: center;
-}
-
-.quantity-controls button {
-    background: var(--color-card-bg);
-    border: 1px solid #ccc;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-size: 1.5em;
-    font-weight: 500;
-    cursor: pointer;
-    line-height: 1;
-    transition: background 0.2s, transform 0.1s;
-    color: var(--color-text);
-    display: flex;
-    align-items: center;
     justify-content: center;
 }
 
-.quantity-controls button:active {
-    background: #e0e0e0;
-    transform: scale(0.95);
-}
-
-.quantity-controls button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.quantity-controls .quantity {
-    margin: 0 20px;
-    font-size: 1.4em;
-    min-width: 30px;
-    text-align: center;
-    font-weight: 700;
-}
-
-
-/* 7. 모달 푸터 (하단 고정) */
-.modal-footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    padding: 15px 20px;
-    background-color: #ffffff;
-    border-top: 1px solid #eee;
-    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
-    z-index: 2100;
-    max-width: var(--max-mobile-width); 
-    left: 50%;
-    transform: translateX(-50%);
-}
-
 .modal-footer button {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 10px;
-    background-color: var(--color-secondary);
-    color: white;
-    font-size: 1.2em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-}
-
-.modal-footer button:hover:not(:disabled) {
-    background-color: var(--color-secondary-hover);
-}
-
-.modal-footer button:active:not(:disabled) {
-    transform: scale(0.98);
-}
-
-.modal-footer button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    color: #666;
-}
-
-
-/* 7-1. 장바구니 보기 모달 스타일 */
-.cart-view-footer {
-    display: flex;
-    flex-direction: column;
-}
-
-.cart-summary-total {
-    display: flex;
-    justify-content: space-between;
-    font-size: 1.3em;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: var(--color-danger);
-    padding-top: 5px;
-}
-
-/* 장바구니 리스트 컨테이너 */
-#cart-items-list {
-    max-height: 350px;
-    overflow-y: auto;
-    margin-bottom: 15px;
-    padding-right: 5px; /* 스크롤바 공간 확보 */
-}
-
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.cart-item:last-child {
-    border-bottom: none;
-}
-
-.cart-item-name {
-    font-weight: 600;
-    flex-basis: 40%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 1.0em;
-}
-
-.cart-item-price {
-    font-size: 0.95em;
-    color: var(--color-text);
-    margin-right: 15px;
-    font-weight: 500;
-}
-
-.cart-item-controls button {
-    background: var(--color-background-fade);
-    border: 1px solid #ddd;
-    width: 30px;
-    height: 30px;
-    border-radius: 6px; /* 사각형 버튼 */
-    font-size: 1.0em;
-    line-height: 1;
-    cursor: pointer;
-}
-.cart-item-controls button:active {
-    background-color: #ccc;
-    transform: scale(0.95);
-}
-
-
-/* 7-2. 주문 내역 모달 스타일 (추가) */
-.history-card {
-    border: 1px solid #eee;
-    border-radius: 10px;
+    width: 90%;
     padding: 15px;
-    margin-bottom: 15px;
-    background-color: var(--color-card-bg);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.history-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9em;
-    color: var(--color-light-gray);
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px dashed #ddd;
-}
-
-.history-status {
-    font-weight: bold;
-}
-
-.status-pending {
-    color: var(--color-secondary);
-}
-.status-processing {
-    color: #f7b267; /* 주황색 계열 */
-}
-.status-completed {
-    color: var(--color-accent);
-}
-
-.history-card ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 0.95em;
-}
-
-.history-card li {
-    margin-bottom: 3px;
-    color: var(--color-text);
-}
-
-/* ======================================= */
-/* 7-3. 계속 주문하기 버튼 (메뉴 목록 복귀) */
-/* ======================================= */
-.continue-ordering-btn {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 10px; /* 푸터와 간격 확보 */
+    background-color: var(--color-accent);
+    color: #fff;
     border: none;
-    border-radius: 10px;
-    background-color: #383838; /* 차분한 다크 그레이 배경 */
-    color: var(--color-light-gray);
-    font-size: 1.1em;
-    font-weight: 600;
+    border-radius: 12px;
+    font-size: 1.2em;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background 0.2s;
 }
 
-.continue-ordering-btn:hover {
-    background-color: #4A4A4A;
-    color: var(--color-text);
+.modal-footer button:hover {
+    background-color: #059669;
 }
 
-/* 8. 토스트 메시지 스타일 */
+/* ======================================= */
+/* 8. 토스트 */
 .toast-message {
     position: fixed;
-    bottom: 80px; 
+    bottom: 100px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: var(--color-text); /* 짙은 색상 */
+    background-color: var(--color-secondary);
     color: white;
     padding: 12px 25px;
     border-radius: 25px;
-    font-size: 1.0em;
-    z-index: 3000;
+    font-size: 1em;
+    text-align: center;
+    box-shadow: 0 4px 12px var(--color-shadow);
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
-    max-width: 90%;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.3s, bottom 0.3s;
 }
 
 .toast-message.show {
     opacity: 1;
     visibility: visible;
-    bottom: 100px; 
+    bottom: 120px;
 }
 
 /* ======================================= */
-/* 9. 테이블 입력 페이지 (start.html) 전용 스타일 */
-/* ======================================= */
+/* 9. 입력 페이지 */
 .start-container {
-    /* 💡 수정: absolute 포지셔닝과 calc()를 사용하여 헤더 아래 전체 영역 확보 */
-    position: absolute; /* 절대 위치 지정 */
-    top: var(--header-height); /* 헤더 바로 아래부터 시작 */
-    left: 50%;
-    transform: translateX(-50%); /* 수평 중앙 정렬 */
-    
-    width: 100%;
-    max-width: var(--max-mobile-width);
-    
-    /* 💡 수정: 뷰포트 높이에서 헤더 높이를 제외한 만큼 높이를 계산 */
-    min-height: calc(100vh - var(--header-height)); 
-
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* 💡 수직 중앙 정렬 */
-    
+    justify-content: center;
+    min-height: calc(100vh - var(--header-height));
     padding: 20px;
     text-align: center;
-    margin: 0; /* 불필요한 마진 제거 */
 }
 
-.start-container h2 {
-    font-size: 1.5em; /* 제목 크기 키움 */
-    color: var(--color-text);
-    margin-bottom: 40px;
-    font-weight: 600;
-}
-
-/* 💡 핵심: 입력 필드 스타일링 - 크고 명확하게 (secondary 색상 사용) */
 #booth-input {
-    width: 100%;
-    padding: 20px 0; /* 💡 수정: 상하 패딩을 25px에서 20px로 줄임 */
-    margin-bottom: 30px;
-    
-    font-size: 3.0em; 
-    font-weight: 800;
+    font-size: 3em;
+    font-weight: 700;
     text-align: center;
-    
-    border: 3px solid var(--color-secondary); 
-    border-radius: 18px;
-    outline: none;
-    background-color: var(--color-primary);
-    box-sizing: border-box; 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-/* 버튼 스타일링 (secondary 색상 사용) */
-#start-btn {
+    padding: 15px;
     width: 100%;
-    padding: 18px;
-    font-size: 1.3em;
-    font-weight: bold;
-    color: white;
-    background-color: var(--color-secondary); 
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+    max-width: var(--max-mobile-width);
+    border-radius: 18px;
+    border: 2px solid var(--color-primary);
+    background-color: #fff;
+    margin-bottom: 20px;
 }
 
-#start-btn:active {
-    background-color: var(--color-secondary-hover);
-    transform: scale(0.98);
+#start-btn {
+    padding: 15px;
+    width: 100%;
+    max-width: var(--max-mobile-width);
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #fff;
+    background-color: var(--color-primary);
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#start-btn:hover {
+    background-color: var(--color-primary-hover);
 }
 
 .alert-message {
     color: var(--color-danger);
-    margin-top: 15px;
-    font-size: 1.0em;
+    margin-top: 10px;
     font-weight: bold;
-    display: none;
 }

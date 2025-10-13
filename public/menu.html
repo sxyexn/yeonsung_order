@@ -73,18 +73,10 @@
 
             <div id="cart-items-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;">
                 <p style="text-align: center; color: var(--color-light-gray);">장바구니가 비어있습니다.</p>
-            
-            <div id="cartModal" class="modal">
-                        <div class="modal-content">
-                            <span class="close-btn" id="close-cart-modal">&times;</span>
-                            <h2>장바구니 확인</h2>
-                
-                            <div id="cart-items-list">
-                                <p style="text-align: center; color: var(--color-light-gray);">장바구니가 비어있습니다.</p>
-                            </div>
-                            <button id="continue-ordering-cart-btn" class="continue-ordering-btn">
-                                « 메뉴 목록으로 돌아가 계속 주문하기
-                            </button>
+        
+                <button id="continue-ordering-cart-btn" class="continue-ordering-btn">
+                    « 메뉴 목록으로 돌아가 계속 주문하기
+                </button>
             </div>
             
             <div class="cart-view-footer">
@@ -100,7 +92,7 @@
     <div id="toast" class="toast-message"></div>
 
     <script>
-        // 현재는 더미 데이터로 작동하며, 실제로는 서버에서 받아와야 합니다.
+        // 더미 메뉴 데이터
         const DUMMY_MENU_DATA = [
             { id: 1, name: '렌고쿠의 불꽃 숨결', price: 12900, category: '메인', description: '강렬하게 불타오르는 제육볶음.', image_url: 'j.png' },
             { id: 2, name: '꺽쇠 까마귀 발', price: 14900, category: '메인', description: '중독적인 매운맛의 닭발.', image_url: 'd.png' },
@@ -108,51 +100,42 @@
             { id: 4, name: '아카자의 눈물', price: 5000, category: '사이드', description: '치즈와 고소한 토핑.', image_url: 'p.png' },
             { id: 5, name: '이노스케의 야생 옥수수', price: 5000, category: '사이드', description: '달콤한 옥수수와 치즈의 조합.', image_url: 'c.png' }
         ];
-
-        
-
+    
         let menuList = DUMMY_MENU_DATA;
-        let cart = []; // { menuId: 1, quantity: 2, price: 12900, name: '...' }
-
+        let cart = [];
+    
         // =======================================
-        // 유틸리티 함수
+        // 유틸리티
         // =======================================
         const formatPrice = (price) => price.toLocaleString('ko-KR') + '원';
-
-        const getBoothId = () => {
-            return sessionStorage.getItem('current_booth_id') || '0';
-        };
-
-        const showToast = (message) => {
+        const getBoothId = () => sessionStorage.getItem('current_booth_id') || '0';
+        const showToast = (msg) => {
             const toast = document.getElementById('toast');
-            toast.textContent = message;
+            toast.textContent = msg;
             toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2500);
+            setTimeout(() => toast.classList.remove('show'), 2500);
         };
-        
+    
         // =======================================
-        // 메뉴 리스트 렌더링
+        // 메뉴 렌더링
         // =======================================
-        const renderMenuList = (filterCategory = 'all') => {
+        const renderMenuList = (category = 'all') => {
             const listContainer = document.getElementById('menu-list');
-            listContainer.innerHTML = ''; // 기존 목록 비우기
-            
-            const filteredMenu = filterCategory === 'all'
+            listContainer.innerHTML = '';
+    
+            const filteredMenu = category === 'all'
                 ? menuList
-                : menuList.filter(menu => menu.category === filterCategory);
-
+                : menuList.filter(menu => menu.category === category);
+    
             if (filteredMenu.length === 0) {
-                 listContainer.innerHTML = `<p style="text-align: center; margin-top: 30px; color: var(--color-light-gray);">현재 카테고리에는 메뉴가 없습니다.</p>`;
-                 return;
+                listContainer.innerHTML = `<p style="text-align:center;margin-top:30px;color:#bbb;">현재 카테고리에는 메뉴가 없습니다.</p>`;
+                return;
             }
-
+    
             filteredMenu.forEach(menu => {
                 const card = document.createElement('div');
                 card.className = 'menu-card';
                 card.dataset.menuId = menu.id;
-                
                 card.innerHTML = `
                     <img src="assets/${menu.image_url}" alt="${menu.name}" class="menu-image">
                     <div class="menu-details">
@@ -165,35 +148,33 @@
                 listContainer.appendChild(card);
             });
         };
-
+    
         // =======================================
         // 장바구니 업데이트
         // =======================================
         const updateCartDisplay = () => {
-            const cartCountElement = document.getElementById('cart-count');
-            const cartListElement = document.getElementById('cart-items-list');
-            const cartTotalPriceElement = document.getElementById('cart-total-price');
-            const submitOrderBtn = document.getElementById('submit-order-btn');
-
-            const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-            // 뱃지와 총 금액 업데이트
-            cartCountElement.textContent = totalQuantity;
-            cartTotalPriceElement.textContent = formatPrice(totalPrice);
-            submitOrderBtn.disabled = totalQuantity === 0;
-
-            // 장바구니 리스트 업데이트
-            cartListElement.innerHTML = '';
+            const cartCountEl = document.getElementById('cart-count');
+            const cartListEl = document.getElementById('cart-items-list');
+            const cartTotalEl = document.getElementById('cart-total-price');
+            const submitBtn = document.getElementById('submit-order-btn');
+    
+            const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    
+            cartCountEl.textContent = totalQty;
+            cartTotalEl.textContent = formatPrice(totalPrice);
+            submitBtn.disabled = totalQty === 0;
+    
+            cartListEl.innerHTML = '';
             if (cart.length === 0) {
-                cartListElement.innerHTML = `<p style="text-align: center; color: var(--color-light-gray);">장바구니가 비어있습니다.</p>`;
+                cartListEl.innerHTML = `<p style="text-align:center;color:#bbb;">장바구니가 비어있습니다.</p>`;
                 return;
             }
-
+    
             cart.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'cart-item';
-                itemDiv.innerHTML = `
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
                     <span class="cart-item-name">${item.name}</span>
                     <span class="cart-item-price">${formatPrice(item.price)} x ${item.quantity}</span>
                     <div class="cart-item-controls">
@@ -202,95 +183,70 @@
                         <button data-id="${item.menuId}" data-action="plus">+</button>
                     </div>
                 `;
-                cartListElement.appendChild(itemDiv);
+                cartListEl.appendChild(div);
             });
         };
-
+    
         // =======================================
-        // 모달 관련 함수
+        // 모달 관련
         // =======================================
-
         let currentModalMenu = null;
         let currentQuantity = 1;
-
+    
         const openDetailModal = (menuId) => {
             currentModalMenu = menuList.find(m => m.id === menuId);
-            currentQuantity = 1;
-            
             if (!currentModalMenu) return;
-
+            currentQuantity = 1;
+    
             document.getElementById('modal-menu-image').src = `assets/${currentModalMenu.image_url}`;
             document.getElementById('modal-menu-category').textContent = currentModalMenu.category;
             document.getElementById('modal-menu-name').textContent = currentModalMenu.name;
             document.getElementById('modal-menu-description').textContent = currentModalMenu.description;
-            
-            // 수량 및 가격 표시 업데이트
+    
             updateDetailModalDisplay();
-
             document.getElementById('detailModal').style.display = 'block';
         };
-
+    
         const updateDetailModalDisplay = () => {
-            const totalPrice = currentModalMenu.price * currentQuantity;
+            if (!currentModalMenu) return;
             document.getElementById('modal-quantity').textContent = currentQuantity;
-            document.getElementById('modal-price-display').textContent = formatPrice(currentModalMenu.price); // 단위 가격
+            const totalPrice = currentModalMenu.price * currentQuantity;
+            document.getElementById('modal-price-display').textContent = formatPrice(currentModalMenu.price);
             document.getElementById('add-to-cart-btn').textContent = `장바구니 담기 (총 ${formatPrice(totalPrice)})`;
             document.getElementById('qty-minus').disabled = currentQuantity === 1;
         };
-
+    
         const addToCart = () => {
-            const existingItem = cart.find(item => item.menuId === currentModalMenu.id);
-            if (existingItem) {
-                existingItem.quantity += currentQuantity;
-            } else {
-                cart.push({
-                    menuId: currentModalMenu.id,
-                    name: currentModalMenu.name,
-                    price: currentModalMenu.price,
-                    quantity: currentQuantity
-                });
-            }
+            if (!currentModalMenu) return;
+            const exist = cart.find(item => item.menuId === currentModalMenu.id);
+            if (exist) exist.quantity += currentQuantity;
+            else cart.push({ menuId: currentModalMenu.id, name: currentModalMenu.name, price: currentModalMenu.price, quantity: currentQuantity });
+    
             showToast(`${currentModalMenu.name} ${currentQuantity}개 담았습니다.`);
             document.getElementById('detailModal').style.display = 'none';
             updateCartDisplay();
         };
-
-        
-
+    
         // =======================================
-        // 이벤트 리스너 설정
+        // 이벤트 초기화
         // =======================================
         document.addEventListener('DOMContentLoaded', () => {
+            // 테이블 번호 표시
             const boothId = getBoothId();
-            if (boothId === '0') {
-                // 테이블 번호가 없으면 입력 페이지로 리디렉션
-                // window.location.href = '/start.html'; 
-                // 임시로 디버깅을 위해 테이블 번호 표시
-                document.getElementById('booth-number').textContent = `테이블 번호: (디버그: ${boothId})`;
-            } else {
-                document.getElementById('booth-number').textContent = `테이블 번호: ${boothId}`;
-            }
-
-            renderMenuList('all');
-
-            document.getElementById('booth-number').addEventListener('click', () => {
-                const isConfirmed = confirm('테이블 번호를 변경하시겠습니까? 현재 장바구니의 내용은 유지되지 않습니다.');
-                if (isConfirmed) {
-                    sessionStorage.removeItem('current_booth_id');
-                    window.location.href = 'start.html';
-                }
-            });
-            
-            // 탭 이벤트
-            document.getElementById('category-tabs').addEventListener('click', (e) => {
+            document.getElementById('booth-number').textContent = `테이블 번호: ${boothId}`;
+    
+            renderMenuList();
+    
+            // 카테고리 탭 클릭
+            document.getElementById('category-tabs').addEventListener('click', e => {
                 if (e.target.classList.contains('tab-button')) {
                     document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
                     e.target.classList.add('active');
                     renderMenuList(e.target.dataset.category);
                 }
             });
-
-            // 장바구니 열기/닫기 이벤트
+    
+            // 장바구니 열기/닫기
             document.getElementById('open-cart-btn').addEventListener('click', () => {
                 updateCartDisplay();
                 document.getElementById('cartModal').style.display = 'block';
@@ -298,78 +254,64 @@
             document.getElementById('close-cart-modal').addEventListener('click', () => {
                 document.getElementById('cartModal').style.display = 'none';
             });
-
-            // 메뉴 상세 모달 닫기 이벤트
+    
+            // 상세 모달 닫기
             document.getElementById('close-detail-modal').addEventListener('click', () => {
                 document.getElementById('detailModal').style.display = 'none';
             });
-
-            // 메뉴 상세 모달의 메뉴 목록 복귀 버튼 이벤트
-            document.getElementById('continue-ordering-detail-btn').addEventListener('click', () => {
-                document.getElementById('detailModal').style.display = 'none';
-            });
-
-            // 장바구니 모달의 메뉴 목록 복귀 버튼 이벤트
+            document.getElementById('continue-ordering-btn').addEventListener('click', () => {
+                document.getElementById('detailModal').style.display = 'none';
+            });
             document.getElementById('continue-ordering-cart-btn').addEventListener('click', () => {
-                document.getElementById('cartModal').style.display = 'none';
-            });
-
-            // 모달 수량 조절 이벤트
-            document.getElementById('qty-plus').addEventListener('click', () => {
-                currentQuantity++;
-                updateDetailModalDisplay();
+                document.getElementById('cartModal').style.display = 'none';
             });
-            document.getElementById('qty-minus').addEventListener('click', () => {
-                if (currentQuantity > 1) {
-                    currentQuantity--;
-                    updateDetailModalDisplay();
-                }
-            });
-
-            // 장바구니 담기 이벤트
+    
+            // 수량 조절
+            document.getElementById('qty-plus').addEventListener('click', () => { currentQuantity++; updateDetailModalDisplay(); });
+            document.getElementById('qty-minus').addEventListener('click', () => { if(currentQuantity>1){currentQuantity--; updateDetailModalDisplay();} });
+    
+            // 장바구니 담기
             document.getElementById('add-to-cart-btn').addEventListener('click', addToCart);
-
-            // 장바구니 항목 수량 조절 (델리게이션)
-            document.getElementById('cart-items-list').addEventListener('click', (e) => {
+    
+            // 장바구니 수량 조절 (델리게이션)
+            document.getElementById('cart-items-list').addEventListener('click', e => {
                 const action = e.target.dataset.action;
                 const menuId = parseInt(e.target.dataset.id);
-                const itemIndex = cart.findIndex(item => item.menuId === menuId);
-
-                if (itemIndex > -1) {
-                    if (action === 'plus') {
-                        cart[itemIndex].quantity++;
-                    } else if (action === 'minus') {
-                        cart[itemIndex].quantity--;
-                        if (cart[itemIndex].quantity < 1) {
-                            cart.splice(itemIndex, 1); // 0개 되면 삭제
-                        }
-                    }
+                const idx = cart.findIndex(i=>i.menuId===menuId);
+                if(idx<0) return;
+                if(action==='plus') cart[idx].quantity++;
+                else if(action==='minus') {
+                    cart[idx].quantity--;
+                    if(cart[idx].quantity<1) cart.splice(idx,1);
+                }
+                updateCartDisplay();
+            });
+    
+            // 주문하기
+            document.getElementById('submit-order-btn').addEventListener('click', () => {
+                if(cart.length>0){
+                    const orderData = {
+                        booth_id: getBoothId(),
+                        total_price: cart.reduce((sum,i)=>sum+i.price*i.quantity,0),
+                        items: cart.map(i=>({menu_id:i.menuId, quantity:i.quantity, unit_price:i.price}))
+                    };
+                    console.log('주문 데이터:', orderData);
+                    showToast('주문이 접수되었습니다! (서버 연동 필요)');
+                    cart=[];
+                    document.getElementById('cartModal').style.display='none';
                     updateCartDisplay();
                 }
             });
-
-            // 최종 주문하기 버튼 (실제 서버 통신 로직이 들어갈 곳)
-            document.getElementById('submit-order-btn').addEventListener('click', () => {
-                if (cart.length > 0) {
-                    // 💡 여기에 AJAX를 이용한 서버 (Node.js) 주문 요청 코드가 들어갑니다.
-                    const orderData = {
-                        booth_id: getBoothId(),
-                        total_price: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-                        items: cart.map(item => ({
-                            menu_id: item.menuId,
-                            quantity: item.quantity,
-                            unit_price: item.price
-                        }))
-                    };
-                    
-                    console.log('최종 주문 데이터:', orderData);
-                    showToast('주문이 접수되었습니다! (서버 연동 필요)');
-                    cart = []; // 주문 후 장바구니 비우기
-                    document.getElementById('cartModal').style.display = 'none';
-                    updateCartDisplay();
+    
+            // 테이블 번호 변경
+            document.getElementById('booth-number').addEventListener('click', () => {
+                if(confirm('테이블 번호를 변경하시겠습니까? 현재 장바구니 내용은 사라집니다.')){
+                    sessionStorage.removeItem('current_booth_id');
+                    window.location.href='start.html';
                 }
             });
         });
     </script>
+    
 </body>
 </html>
