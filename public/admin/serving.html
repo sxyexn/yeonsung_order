@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서빙 완료 | 관리자</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body class="serving-page">
+
+    <header>
+        <h1>🚚 서빙 완료 처리</h1>
+        <p>조리가 완료된 메뉴를 서빙하고 최종 완료 처리해 주세요.</p>
+    </header>
+
+    <main>
+        <section id="serving-section" class="order-section confirmed">
+            <h2>📢 서빙 대기 메뉴 (<span id="serving-count">0</span>개)</h2>
+            <div class="order-list-container">
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>메뉴</th>
+                            <th>수량</th>
+                            <th>테이블</th>
+                            <th>#주문번호</th>
+                            <th>조리 완료 시간</th>
+                            <th>처리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="serving-items-tbody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    
+    <script src="assets/js/admin.js"></script>
+</body>
+</html>

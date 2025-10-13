@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>입금 확인 | 관리자</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        /* payment.html 전용 스타일 */
+        .payment-page #pending-section { border: 3px solid #dc3545; }
+        .payment-page #confirmed-section { border: 3px solid #28a745; }
+    </style>
+</head>
+<body class="payment-page">
+
+    <header>
+        <h1>💰 입금 확인 관리</h1>
+        <p>새 주문을 확인하고 입금 처리해 주세요.</p>
+    </header>
+
+    <main>
+        <section id="pending-section" class="order-section">
+            <h2>🚨 입금 확인 대기 주문 (<span id="pending-count">0</span>건)</h2>
+            <div class="order-list-container">
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>#주문번호</th>
+                            <th>테이블</th>
+                            <th>총 금액 (원)</th>
+                            <th>주문 상세</th>
+                            <th>주문 시간</th>
+                            <th>처리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pending-orders-tbody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="confirmed-section" class="order-section confirmed">
+            <h2>✅ 입금 확인 완료 주문 (<span id="confirmed-count">0</span>건)</h2>
+            <div class="order-list-container">
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>#주문번호</th>
+                            <th>테이블</th>
+                            <th>총 금액 (원)</th>
+                            <th>주문 상세</th>
+                            <th>주문 시간</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody id="confirmed-orders-tbody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    
+    <script src="assets/js/admin.js"></script>
+</body>
+</html>

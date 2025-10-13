@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 메인 대시보드 | 축제 주점</title>
+    <link rel="stylesheet" href="admin.css"> 
+</head>
+<body>
+
+    <header>
+        <h1>🎉 축제 주점 관리 시스템</h1>
+        <p>환영합니다, 관리자님! 접속할 페이지를 선택하세요.</p>
+    </header>
+
+    <main class="dashboard-grid">
+        
+        <div class="card" id="card-payment">
+            <h2>💰 입금 확인 및 정산</h2>
+            <p>고객의 입금을 확인하고 주문 처리를 시작합니다.</p>
+            <button class="action-btn primary-btn" id="go-to-payment">
+                입금 확인 페이지로 이동
+            </button>
+        </div>
+
+        <div class="card">
+            <h2>🔪 주방 조리 현황</h2>
+            <p>메뉴별 주문 내역을 확인하고 조리 상태를 변경합니다.</p>
+            <a href="../kitchen.html" class="action-btn secondary-btn">
+                주방 현황판으로 이동
+            </a>
+        </div>
+        
+        <div class="card" id="card-serving">
+            <h2>🚚 서빙 완료 처리</h2>
+            <p>조리가 완료된 메뉴의 서빙을 확인하고 최종 완료 처리합니다.</p>
+            <a href="serving.html" class="action-btn secondary-btn">
+                서빙 완료 페이지로 이동
+            </a>
+        </div>
+
+    </main>
+    
+    <script src="assets/js/admin.js"></script>
+</body>
+</html>
