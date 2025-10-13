@@ -126,7 +126,7 @@ body {
 /* ======================================= */
 /* 5. 메뉴 카드 */
 .menu-container {
-    padding: 10px 10px 80px;
+    padding: 20px 10px 80px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -354,4 +354,80 @@ body {
     color: var(--color-danger);
     margin-top: 10px;
     font-weight: bold;
+}
+
+/* 수량 조절 영역 */
+.quantity-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.quantity-container button {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(145deg, #f59e0b, #d97706);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1.4em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: transform 0.1s, box-shadow 0.2s, background 0.2s;
+}
+
+.quantity-container button:hover {
+    background: linear-gradient(145deg, #d97706, #b45309);
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+}
+
+.quantity-container input {
+    width: 60px;
+    height: 40px;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    font-size: 1.1em;
+    color: var(--color-text);
+    background-color: #fff;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+
+/* 메뉴목록으로 돌아가기 버튼 */
+.back-to-menu {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px 0;
+    padding: 14px 0;
+    text-align: center;
+    background: linear-gradient(145deg, #4f46e5, #6366f1);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1em;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+}
+
+.back-to-menu:hover {
+    background: linear-gradient(145deg, #6366f1, #4f46e5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+/* 수량 + 메뉴 버튼 묶음 스타일 */
+.action-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
 }
