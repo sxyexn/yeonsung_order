@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 로그인</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        /* login.html 전용 스타일 */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background-color: #252526;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .login-container h1 { 
+            color: #ffc107; 
+            margin-bottom: 30px; 
+        }
+        .login-container input {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #444;
+            background-color: #3a3a3a;
+            color: #f1f1f1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <div class="login-container">
+            <h1>관리자 로그인</h1>
+            <form id="login-form">
+                <input type="password" id="admin-password" placeholder="관리자 비밀번호" required>
+    
+                <button type="submit" class="action-btn primary-btn" style="width: 100%;">
+                    로그인
+                </button>
+                <p id="login-message" style="color: #dc3545; margin-top: 15px;"></p>
+            </form>
+        </div>
+    </main>
+    
+    <script src="/socket.io/socket.io.js"></script> 
+    <script src="admin.js"></script> 
+</body>
+</html>
