@@ -395,7 +395,7 @@
                     const orderData = {
                         booth_id: getBoothId(),
                         total_price: cart.reduce((sum,i)=>sum+i.price*i.quantity,0),
-                        items: cart.map(i=>({menuId:i.menuId, name:i.name, price:i.price, quantity:i.quantity}))
+                        items: cart.map(i=>({menu_Id:i.menuId, name:i.name, price:i.price, quantity:i.quantity}))
                     };
                     
                     // 1. 주문 내역에 현재 장바구니 내용 추가
